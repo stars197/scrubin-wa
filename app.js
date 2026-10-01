@@ -2165,16 +2165,29 @@ Warm regards,
     document.getElementById('reset-all-filters-btn').addEventListener('click', resetAllFilters);
 
     const openFiltersBtn = document.getElementById('mobile-open-filters-btn');
+    const openFiltersLabel = document.getElementById('custom-filter-btn-label');
     const closeFiltersBtn = document.getElementById('mobile-close-filters-btn');
     const filtersDrawer = document.getElementById('filters-sidebar-drawer');
+
+    function setFiltersOpen(isOpen) {
+      if (!filtersDrawer || !openFiltersBtn) return;
+      filtersDrawer.classList.toggle('mobile-open', isOpen);
+      openFiltersBtn.classList.toggle('active', isOpen);
+      openFiltersBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      if (openFiltersLabel) {
+        openFiltersLabel.textContent = isOpen ? 'Hide Filters' : 'Custom Filters';
+      }
+    }
+
     if (openFiltersBtn && filtersDrawer) {
       openFiltersBtn.addEventListener('click', () => {
-        filtersDrawer.classList.add('mobile-open');
+        const currentlyOpen = filtersDrawer.classList.contains('mobile-open');
+        setFiltersOpen(!currentlyOpen);
       });
     }
     if (closeFiltersBtn && filtersDrawer) {
       closeFiltersBtn.addEventListener('click', () => {
-        filtersDrawer.classList.remove('mobile-open');
+        setFiltersOpen(false);
       });
     }
   }

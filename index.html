@@ -120,30 +120,7 @@
             </button>
           </div>
         </div>
-
-        <!-- Single-Row Horizontal Scrollable Quick Filters & Cities (Great on Mobile) -->
-        <div class="quick-scroll-row">
-          <div class="hero-pathway-pills" role="group" aria-label="1-Tap Quick Filters">
-            <button type="button" class="pathway-chip" id="preset-starter-btn" data-preset="starter">✨ Starter Friendly</button>
-            <button type="button" class="pathway-chip" id="preset-clinical-btn" data-preset="clinical">🩺 Direct Patient Care</button>
-            <button type="button" class="pathway-chip" id="preset-fqhc-btn" data-preset="fqhc">🏥 Free Clinics (FQHC)</button>
-            <button type="button" class="pathway-chip" id="preset-research-btn" data-preset="research">🔬 Research &amp; NIH Trials</button>
-            <button type="button" class="pathway-chip" id="preset-highschool-btn" data-preset="highschool">🎓 High School (16+)</button>
-          </div>
-
-          <div class="zip-quick-list" role="group" aria-label="Quick Washington Cities">
-            <button type="button" class="zip-pill active" id="zip-pill-all" data-zip="">All WA</button>
-            <button type="button" class="zip-pill" id="zip-pill-98195" data-zip="98195">Seattle (UW)</button>
-            <button type="button" class="zip-pill" id="zip-pill-98104" data-zip="98104">First Hill</button>
-            <button type="button" class="zip-pill" id="zip-pill-98004" data-zip="98004">Bellevue / Eastside</button>
-            <button type="button" class="zip-pill" id="zip-pill-98405" data-zip="98405">Tacoma</button>
-            <button type="button" class="zip-pill" id="zip-pill-99204" data-zip="99204">Spokane</button>
-            <button type="button" class="zip-pill" id="zip-pill-98902" data-zip="98902">Yakima</button>
-            <button type="button" class="zip-pill" id="zip-pill-98225" data-zip="98225">Bellingham</button>
-            <button type="button" class="zip-pill" id="zip-pill-98664" data-zip="98664">Vancouver</button>
-          </div>
-        </div>
-        <div class="zip-status-readout" id="zip-status-readout" style="display:none;"></div>
+        <div id="zip-status-readout" style="display:none;"></div>
       </form>
     </div>
   </section>
@@ -157,193 +134,16 @@
     <section id="tab-panel-explore" class="tab-panel active" aria-labelledby="nav-tab-explore">
       <div class="explore-layout">
 
-        <!-- Collapsible Sidebar Filters (Hidden by default on mobile behind a clean toggle button!) -->
-        <aside class="filters-sidebar" id="filters-sidebar-drawer" aria-label="Refine Washington State Criteria">
-          <div class="sidebar-header">
-            <h2 class="sidebar-title">Filter Programs</h2>
-            <div style="display:flex; align-items:center; gap:0.75rem;">
-              <button type="button" class="reset-link" id="reset-all-filters-btn">Reset</button>
-              <button type="button" class="mobile-close-filters-btn" id="mobile-close-filters-btn" aria-label="Close filters">Done</button>
-            </div>
-          </div>
-
-          <!-- Washington State Region -->
-          <div class="filter-section">
-            <h3 class="filter-group-title">Washington Region</h3>
-            <div class="checkbox-list" id="region-filter-list">
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" name="waregion" value="Seattle & King County" id="reg-seattle" />
-                  <span>Seattle &amp; King County</span>
-                </span>
-              </label>
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" name="waregion" value="Eastside (Bellevue / Kirkland / Redmond)" id="reg-eastside" />
-                  <span>Eastside (Bellevue / Kirkland)</span>
-                </span>
-              </label>
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" name="waregion" value="South Sound (Tacoma / Olympia)" id="reg-south" />
-                  <span>South Sound (Tacoma / Olympia)</span>
-                </span>
-              </label>
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" name="waregion" value="North Sound (Everett / Lynnwood / Bellingham)" id="reg-north" />
-                  <span>North Sound (Lynnwood / B'ham)</span>
-                </span>
-              </label>
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" name="waregion" value="Eastern WA (Spokane / Pullman / Tri-Cities)" id="reg-eastwa" />
-                  <span>Eastern WA (Spokane / WSU)</span>
-                </span>
-              </label>
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" name="waregion" value="Central & SW WA (Yakima / Vancouver)" id="reg-central" />
-                  <span>Central &amp; SW WA (Yakima / Vanc.)</span>
-                </span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Pre-Med Experience Attributes -->
-          <div class="filter-section">
-            <h3 class="filter-group-title">Quick Criteria</h3>
-            <div class="checkbox-list">
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" id="filter-direct-patient" />
-                  <span>Direct Patient Contact</span>
-                </span>
-              </label>
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" id="filter-starter-friendly" />
-                  <span>Starter Friendly (No Exp.)</span>
-                </span>
-              </label>
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" id="filter-shadowing" />
-                  <span>Includes Shadowing</span>
-                </span>
-              </label>
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" id="filter-lor-eligible" />
-                  <span>Letter of Rec (LOR) Eligible</span>
-                </span>
-              </label>
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" id="filter-weekend" />
-                  <span>Weekend Shifts</span>
-                </span>
-              </label>
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" id="filter-evening" />
-                  <span>Evening Shifts</span>
-                </span>
-              </label>
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" id="filter-low-hours" />
-                  <span>≤ 4 hrs/week</span>
-                </span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Student Level Eligibility -->
-          <div class="filter-section">
-            <h3 class="filter-group-title">Student Level</h3>
-            <div class="checkbox-list">
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" name="eligibility" value="High School (16+)" id="elig-hs" />
-                  <span>High School (16+)</span>
-                </span>
-              </label>
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" name="eligibility" value="Undergrad / Pre-Med" id="elig-undergrad" />
-                  <span>Undergrad / Pre-Med</span>
-                </span>
-              </label>
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" name="eligibility" value="Post-Bacc / Gap Year" id="elig-gap" />
-                  <span>Post-Bacc / Gap Year</span>
-                </span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Medical Field / Specialty -->
-          <div class="filter-section">
-            <h3 class="filter-group-title">Medical Specialty</h3>
-            <div class="checkbox-list" id="specialty-filter-list">
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" name="specialty" value="Emergency Medicine & Trauma" id="spec-er" />
-                  <span>Emergency &amp; Trauma</span>
-                </span>
-              </label>
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" name="specialty" value="Pediatrics & Child Life" id="spec-peds" />
-                  <span>Pediatrics &amp; Child Life</span>
-                </span>
-              </label>
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" name="specialty" value="Primary Care & Underserved" id="spec-primary" />
-                  <span>Primary Care &amp; Free Clinics</span>
-                </span>
-              </label>
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" name="specialty" value="Oncology & Hematology" id="spec-onc" />
-                  <span>Oncology &amp; Cancer Care</span>
-                </span>
-              </label>
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" name="specialty" value="Translational & Clinical Research" id="spec-research" />
-                  <span>Clinical &amp; Bench Research</span>
-                </span>
-              </label>
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" name="specialty" value="Hospice & Geriatrics" id="spec-hospice" />
-                  <span>Hospice &amp; Geriatrics</span>
-                </span>
-              </label>
-              <label class="checkbox-row">
-                <span class="checkbox-row-left">
-                  <input type="checkbox" name="specialty" value="Surgery, Inpatient & Simulation" id="spec-cardio" />
-                  <span>Surgery &amp; Simulation</span>
-                </span>
-              </label>
-            </div>
-          </div>
-        </aside>
-
-        <!-- Right Main Feed -->
+        <!-- Main Feed (Full-Width, Centered, Zero Default Clutter) -->
         <div class="feed-column">
           <div class="results-toolbar">
             <div class="results-summary" id="results-summary-text">
               Showing <strong>28</strong> verified WA programs
             </div>
             <div class="toolbar-controls">
-              <button type="button" class="btn btn-secondary btn-sm mobile-filter-trigger" id="mobile-open-filters-btn">
+              <button type="button" class="btn btn-secondary btn-sm custom-filter-trigger" id="mobile-open-filters-btn" aria-expanded="false">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/></svg>
-                <span>Filters</span>
+                <span id="custom-filter-btn-label">Custom Filters</span>
               </button>
               <label for="sort-select" class="sort-label">Sort:</label>
               <select id="sort-select" class="sort-select">
@@ -354,6 +154,185 @@
               </select>
             </div>
           </div>
+
+          <!-- Hidden by Default: Custom Search / Refine Criteria Drawer -->
+          <aside class="filters-sidebar" id="filters-sidebar-drawer" aria-label="Custom Search Criteria">
+            <div class="sidebar-header">
+              <h2 class="sidebar-title">Custom Search Criteria</h2>
+              <div style="display:flex; align-items:center; gap:0.75rem;">
+                <button type="button" class="reset-link" id="reset-all-filters-btn">Reset All</button>
+                <button type="button" class="close-filters-btn" id="mobile-close-filters-btn" aria-label="Hide custom filters">Hide Filters &times;</button>
+              </div>
+            </div>
+
+            <div class="filters-drawer-grid">
+              <!-- Washington State Region -->
+              <div class="filter-section">
+                <h3 class="filter-group-title">Washington Region</h3>
+                <div class="checkbox-list" id="region-filter-list">
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" name="waregion" value="Seattle & King County" id="reg-seattle" />
+                      <span>Seattle &amp; King County</span>
+                    </span>
+                  </label>
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" name="waregion" value="Eastside (Bellevue / Kirkland / Redmond)" id="reg-eastside" />
+                      <span>Eastside (Bellevue / Kirkland)</span>
+                    </span>
+                  </label>
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" name="waregion" value="South Sound (Tacoma / Olympia)" id="reg-south" />
+                      <span>South Sound (Tacoma / Olympia)</span>
+                    </span>
+                  </label>
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" name="waregion" value="North Sound (Everett / Lynnwood / Bellingham)" id="reg-north" />
+                      <span>North Sound (Lynnwood / B'ham)</span>
+                    </span>
+                  </label>
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" name="waregion" value="Eastern WA (Spokane / Pullman / Tri-Cities)" id="reg-eastwa" />
+                      <span>Eastern WA (Spokane / WSU)</span>
+                    </span>
+                  </label>
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" name="waregion" value="Central & SW WA (Yakima / Vancouver)" id="reg-central" />
+                      <span>Central &amp; SW WA (Yakima / Vanc.)</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Pre-Med Experience Attributes -->
+              <div class="filter-section">
+                <h3 class="filter-group-title">Program Features</h3>
+                <div class="checkbox-list">
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" id="filter-direct-patient" />
+                      <span>Direct Patient Contact</span>
+                    </span>
+                  </label>
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" id="filter-starter-friendly" />
+                      <span>Starter Friendly (No Exp.)</span>
+                    </span>
+                  </label>
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" id="filter-shadowing" />
+                      <span>Includes Shadowing</span>
+                    </span>
+                  </label>
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" id="filter-lor-eligible" />
+                      <span>Letter of Rec (LOR) Eligible</span>
+                    </span>
+                  </label>
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" id="filter-weekend" />
+                      <span>Weekend Shifts</span>
+                    </span>
+                  </label>
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" id="filter-evening" />
+                      <span>Evening Shifts</span>
+                    </span>
+                  </label>
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" id="filter-low-hours" />
+                      <span>≤ 4 hrs/week</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Student Level Eligibility -->
+              <div class="filter-section">
+                <h3 class="filter-group-title">Student Level</h3>
+                <div class="checkbox-list">
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" name="eligibility" value="High School (16+)" id="elig-hs" />
+                      <span>High School (16+)</span>
+                    </span>
+                  </label>
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" name="eligibility" value="Undergrad / Pre-Med" id="elig-undergrad" />
+                      <span>Undergrad / Pre-Med</span>
+                    </span>
+                  </label>
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" name="eligibility" value="Post-Bacc / Gap Year" id="elig-gap" />
+                      <span>Post-Bacc / Gap Year</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Medical Field / Specialty -->
+              <div class="filter-section">
+                <h3 class="filter-group-title">Medical Specialty</h3>
+                <div class="checkbox-list" id="specialty-filter-list">
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" name="specialty" value="Emergency Medicine & Trauma" id="spec-er" />
+                      <span>Emergency &amp; Trauma</span>
+                    </span>
+                  </label>
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" name="specialty" value="Pediatrics & Child Life" id="spec-peds" />
+                      <span>Pediatrics &amp; Child Life</span>
+                    </span>
+                  </label>
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" name="specialty" value="Primary Care & Underserved" id="spec-primary" />
+                      <span>Primary Care &amp; Free Clinics</span>
+                    </span>
+                  </label>
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" name="specialty" value="Oncology & Hematology" id="spec-onc" />
+                      <span>Oncology &amp; Cancer Care</span>
+                    </span>
+                  </label>
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" name="specialty" value="Translational & Clinical Research" id="spec-research" />
+                      <span>Clinical &amp; Bench Research</span>
+                    </span>
+                  </label>
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" name="specialty" value="Hospice & Geriatrics" id="spec-hospice" />
+                      <span>Hospice &amp; Geriatrics</span>
+                    </span>
+                  </label>
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" name="specialty" value="Surgery, Inpatient & Simulation" id="spec-cardio" />
+                      <span>Surgery &amp; Simulation</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </aside>
 
           <div class="active-filters-bar" id="active-filters-bar" aria-live="polite"></div>
 
