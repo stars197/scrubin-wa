@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ScrubIn — Washington State Clinical, Hospital &amp; Research Volunteer Platform</title>
+  <meta name="description" content="ScrubIn: Consolidated Washington State pre-med and pre-health volunteer platform. Search UW Medicine, Harborview, Seattle Children's, Fred Hutch, MultiCare, Swedish, Sea Mar, Lahai Health, and Spokane/Tacoma/Yakima programs by WA ZIP code, facility type, and clinical criteria." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&amp;family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/index.css" />
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+      <a href="#explore" class="brand-lockup" id="brand-home-link">
+        <div class="brand-mark" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M2 12h20" />
+            <rect x="5" y="5" width="14" height="14" rx="3" stroke-width="1.8" />
+          </svg>
+        </div>
+        <div class="brand-text-group">
+          <span class="brand-name">
+            ScrubIn
+            <span class="brand-state-tag">WA State</span>
+          </span>
+          <span class="brand-tagline">Your First Clinical, Hospital &amp; Research Shift</span>
+        </div>
+      </a>
+
+      <nav class="main-nav" aria-label="Primary Navigation">
+        <button type="button" class="nav-tab active" id="nav-tab-explore" data-tab="explore">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          WA Opportunities
+          <span class="nav-badge" id="nav-total-count">22</span>
+        </button>
+        <button type="button" class="nav-tab" id="nav-tab-toolkit" data-tab="toolkit">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+          Opportunity Finder &amp; WA Playbook
+          <span class="nav-badge">12 Portals</span>
+        </button>
+        <button type="button" class="nav-tab" id="nav-tab-tracker" data-tab="tracker">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          My Tracker &amp; Hours
+          <span class="nav-badge" id="nav-saved-count">0</span>
+        </button>
+      </nav>
+
+      <div class="header-actions" style="display:flex; align-items:center; gap:0.55rem;">
+        <button type="button" class="btn btn-secondary btn-sm" id="sync-live-data-btn" title="Pull live recruiting Washington State clinical studies from NIH ClinicalTrials.gov API v2 and verify portal URLs (runs automatically every 24h)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+          <span id="sync-status-label">24h Live Sync: Active</span>
+        </button>
+        <button type="button" class="btn btn-primary" id="open-submit-modal-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          Post WA Opportunity
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero & WA ZIP / Facility Search Console -->
+  <section class="hero-section" aria-label="Search Washington State Clinical and Research Opportunities">
+    <div class="hero-container">
+      <div class="hero-top-grid">
+        <div>
+          <span class="hero-eyebrow">ScrubIn WA • Washington State Pre-Health &amp; Medical Student Ecosystem</span>
+          <h1 class="hero-headline">Scrub in to every Washington hospital, clinic, and research volunteer pathway in one place.</h1>
+          <p class="hero-subheadline">
+            From UW Medicine, Harborview, Seattle Children’s, and Fred Hutch to MultiCare Tacoma, Sea Mar FQHCs, Lahai Health, Yakima Valley, and Providence Spokane—search verified WA programs by ZIP code (`980xx`–`994xx`), facility type, and insider onboarding rules.
+          </p>
+          <div class="hero-pathway-pills" role="group" aria-label="Quick student pathway presets">
+            <span class="pathway-label">WA Quick Pathways:</span>
+            <button type="button" class="pathway-chip" id="preset-starter-btn" data-preset="starter">First-Time / Starter Friendly</button>
+            <button type="button" class="pathway-chip" id="preset-clinical-btn" data-preset="clinical">Direct Patient Contact (AMCAS)</button>
+            <button type="button" class="pathway-chip" id="preset-research-btn" data-preset="research">UW / Fred Hutch / SCRI Research</button>
+            <button type="button" class="pathway-chip" id="preset-highschool-btn" data-preset="highschool">High School (16+) Eligible</button>
+            <button type="button" class="pathway-chip" id="preset-fqhc-btn" data-preset="fqhc">Free Clinics &amp; FQHCs (Sea Mar / Lahai)</button>
+          </div>
+        </div>
+
+        <div class="hero-visual-card">
+          <img src="/assets/hero-illustration.jpg" alt="Pre-health students collaborating with physicians and researchers in a Washington hospital and laboratory" class="hero-illustration" />
+          <div class="hero-stats-strip">
+            <div class="hero-stat-item">
+              <span class="hero-stat-num">980–994</span>
+              <span class="hero-stat-label">All WA ZIP Codes Indexed</span>
+            </div>
+            <div class="hero-stat-item">
+              <span class="hero-stat-num">22+ Deep</span>
+              <span class="hero-stat-label">WA Health Systems &amp; Clinics</span>
+            </div>
+            <div class="hero-stat-item">
+              <span class="hero-stat-num">12 Live</span>
+              <span class="hero-stat-label">WA Discovery Databases</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Command Bar -->
+      <form class="search-console" id="opportunity-search-form" onsubmit="return false;">
+        <div class="search-grid">
+          <div class="search-field-group">
+            <label for="zip-search-input" class="field-label">
+              <span>WA ZIP Code or City</span>
+              <span id="zip-detected-city" style="font-weight:600; text-transform:none; color:var(--accent-primary);"></span>
+            </label>
+            <div class="input-with-icon">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              <input type="text" id="zip-search-input" class="form-input" placeholder="e.g. 98195, 98004, 98405, 99204, or Bellevue" maxlength="32" autocomplete="postal-code" />
+            </div>
+          </div>
+
+          <div class="search-field-group">
+            <label for="radius-select" class="field-label">Distance Radius</label>
+            <select id="radius-select" class="form-select">
+              <option value="all">All Washington State</option>
+              <option value="10">Within 10 miles</option>
+              <option value="25" selected>Within 25 miles</option>
+              <option value="50">Within 50 miles</option>
+              <option value="100">Within 100 miles</option>
+              <option value="remote">Remote / Telehealth Only</option>
+            </select>
+          </div>
+
+          <div class="search-field-group">
+            <label for="facility-filter-select" class="field-label">Facility Type</label>
+            <select id="facility-filter-select" class="form-select">
+              <option value="all">All WA Medical Facilities</option>
+              <option value="Hospital / Medical Center">Hospital / Medical Center</option>
+              <option value="Free Clinic / FQHC">Free Clinic / FQHC (Community Health)</option>
+              <option value="Academic / Research Lab">Academic / Research Institute</option>
+              <option value="Hospice & Palliative Care">Hospice &amp; Palliative Care</option>
+              <option value="EMS, Blood & Simulation">EMS, Blood &amp; Clinical Simulation</option>
+              <option value="Public Health & Crisis">Public Health &amp; Crisis Outreach</option>
+            </select>
+          </div>
+
+          <div class="search-field-group">
+            <label for="keyword-search-input" class="field-label">Health System, Specialty, or Keyword</label>
+            <div class="input-with-icon">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input type="text" id="keyword-search-input" class="form-input" placeholder="UW Medicine, MultiCare, Sea Mar, Pediatrics..." />
+            </div>
+          </div>
+
+          <div class="search-field-group">
+            <button type="button" class="btn btn-primary" id="execute-search-btn" style="height: 40px;">
+              Search WA
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick WA Medical Corridor Selector -->
+        <div class="zip-quick-bar">
+          <div class="zip-quick-list">
+            <span class="zip-quick-title">WA Medical Corridors:</span>
+            <button type="button" class="zip-pill active" id="zip-pill-all" data-zip="">Entire State (WA)</button>
+            <button type="button" class="zip-pill" id="zip-pill-98195" data-zip="98195">98195 (Seattle UW / Children's)</button>
+            <button type="button" class="zip-pill" id="zip-pill-98104" data-zip="98104">98104 (First Hill / Harborview)</button>
+            <button type="button" class="zip-pill" id="zip-pill-98004" data-zip="98004">98004 (Bellevue / Kirkland Eastside)</button>
+            <button type="button" class="zip-pill" id="zip-pill-98405" data-zip="98405">98405 (Tacoma / Pierce County)</button>
+            <button type="button" class="zip-pill" id="zip-pill-99204" data-zip="99204">99204 (Spokane Medical District)</button>
+            <button type="button" class="zip-pill" id="zip-pill-98902" data-zip="98902">98902 (Yakima / Central WA)</button>
+            <button type="button" class="zip-pill" id="zip-pill-98225" data-zip="98225">98225 (Bellingham / Everett)</button>
+            <button type="button" class="zip-pill" id="zip-pill-98664" data-zip="98664">98664 (Vancouver / SW WA)</button>
+          </div>
+          <div class="zip-status-readout" id="zip-status-readout">
+            Showing all verified Washington State programs
+          </div>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Main Workspace -->
+  <main class="main-content" role="main">
+
+    <!-- ====================================================================
+         TAB 1: EXPLORE WASHINGTON STATE OPPORTUNITIES
+         ==================================================================== -->
+    <section id="tab-panel-explore" class="tab-panel active" aria-labelledby="nav-tab-explore">
+      <div class="explore-layout">
+        <!-- Left Sidebar Filters -->
+        <aside class="filters-sidebar" aria-label="Refine Washington State Criteria">
+          <div class="sidebar-header">
+            <h2 class="sidebar-title">Refine WA Criteria</h2>
+            <button type="button" class="reset-link" id="reset-all-filters-btn">Reset All</button>
+          </div>
+
+          <!-- Washington State Region -->
+          <div class="filter-section">
+            <h3 class="filter-group-title">Washington Region</h3>
+            <div class="checkbox-list" id="region-filter-list">
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" name="waregion" value="Seattle & King County" id="reg-seattle" />
+                  <span>Seattle &amp; King County</span>
+                </span>
+              </label>
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" name="waregion" value="Eastside (Bellevue / Kirkland / Redmond)" id="reg-eastside" />
+                  <span>Eastside (Bellevue / Kirkland)</span>
+                </span>
+              </label>
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" name="waregion" value="South Sound (Tacoma / Olympia)" id="reg-south" />
+                  <span>South Sound (Tacoma / Olympia)</span>
+                </span>
+              </label>
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" name="waregion" value="North Sound (Everett / Lynnwood / Bellingham)" id="reg-north" />
+                  <span>North Sound (Lynnwood / B'ham)</span>
+                </span>
+              </label>
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" name="waregion" value="Eastern WA (Spokane / Pullman / Tri-Cities)" id="reg-eastwa" />
+                  <span>Eastern WA (Spokane / WSU)</span>
+                </span>
+              </label>
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" name="waregion" value="Central & SW WA (Yakima / Vancouver)" id="reg-central" />
+                  <span>Central &amp; SW WA (Yakima / Vanc.)</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Medical Field / Specialty -->
+          <div class="filter-section">
+            <h3 class="filter-group-title">Medical Specialty</h3>
+            <div class="checkbox-list" id="specialty-filter-list">
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" name="specialty" value="Emergency Medicine & Trauma" id="spec-er" />
+                  <span>Emergency &amp; Trauma</span>
+                </span>
+              </label>
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" name="specialty" value="Pediatrics & Child Life" id="spec-peds" />
+                  <span>Pediatrics &amp; Child Life</span>
+                </span>
+              </label>
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" name="specialty" value="Primary Care & Underserved" id="spec-primary" />
+                  <span>Primary Care &amp; FQHC / Free Clinic</span>
+                </span>
+              </label>
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" name="specialty" value="Oncology & Hematology" id="spec-onc" />
+                  <span>Oncology &amp; Cancer Care</span>
+                </span>
+              </label>
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" name="specialty" value="Translational & Clinical Research" id="spec-research" />
+                  <span>Clinical &amp; Bench Research</span>
+                </span>
+              </label>
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" name="specialty" value="Neurology & Behavioral Health" id="spec-neuro" />
+                  <span>Neurology &amp; Behavioral Health</span>
+                </span>
+              </label>
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" name="specialty" value="Hospice & Geriatrics" id="spec-hospice" />
+                  <span>Hospice, Palliative &amp; Geriatrics</span>
+                </span>
+              </label>
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" name="specialty" value="Surgery, Inpatient & Simulation" id="spec-cardio" />
+                  <span>Surgery, Inpatient &amp; Simulation</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Pre-Med Experience Attributes -->
+          <div class="filter-section">
+            <h3 class="filter-group-title">Clinical &amp; Starter Criteria</h3>
+            <div class="checkbox-list">
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" id="filter-direct-patient" />
+                  <span>Direct Patient Contact</span>
+                </span>
+              </label>
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" id="filter-starter-friendly" />
+                  <span>Starter Friendly (No Exp.)</span>
+                </span>
+              </label>
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" id="filter-shadowing" />
+                  <span>Includes Shadowing / Observation</span>
+                </span>
+              </label>
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" id="filter-lor-eligible" />
+                  <span>Letter of Rec (LOR) Pathway</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Student Level Eligibility -->
+          <div class="filter-section">
+            <h3 class="filter-group-title">Student Eligibility</h3>
+            <div class="checkbox-list">
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" name="eligibility" value="High School (16+)" id="elig-hs" />
+                  <span>High School (16+)</span>
+                </span>
+              </label>
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" name="eligibility" value="Undergrad / Pre-Med" id="elig-undergrad" />
+                  <span>Undergrad / Pre-Med</span>
+                </span>
+              </label>
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" name="eligibility" value="Post-Bacc / Gap Year" id="elig-gap" />
+                  <span>Post-Bacc / Gap Year</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Schedule & Time Commitment -->
+          <div class="filter-section">
+            <h3 class="filter-group-title">Schedule &amp; Commitment</h3>
+            <div class="checkbox-list">
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" id="filter-weekend" />
+                  <span>Weekend Shifts Available</span>
+                </span>
+              </label>
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" id="filter-evening" />
+                  <span>Evening Shifts Available</span>
+                </span>
+              </label>
+              <label class="checkbox-row">
+                <span class="checkbox-row-left">
+                  <input type="checkbox" id="filter-low-hours" />
+                  <span>Flexible (≤ 4 hrs/week)</span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Right Main Feed -->
+        <div>
+          <div class="results-toolbar">
+            <div class="results-summary" id="results-summary-text">
+              Showing <strong>22</strong> verified Washington State clinical &amp; research programs
+            </div>
+            <div class="toolbar-controls">
+              <label for="sort-select" class="sort-label">Sort by:</label>
+              <select id="sort-select" class="sort-select">
+                <option value="relevance">Best Match &amp; Distance</option>
+                <option value="distance">Closest to WA ZIP Code</option>
+                <option value="hours_asc">Lowest Weekly Hours</option>
+                <option value="starter">Starter-Friendly First</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="active-filters-bar" id="active-filters-bar" aria-live="polite"></div>
+
+          <div class="opportunities-grid" id="opportunities-grid" role="region" aria-label="Washington State Volunteer Opportunities List">
+            <!-- Populated dynamically by app.js -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         TAB 2: WA OPPORTUNITY DISCOVERY ENGINE & STARTER PLAYBOOK
+         ==================================================================== -->
+    <section id="tab-panel-toolkit" class="tab-panel" aria-labelledby="nav-tab-toolkit">
+      <!-- Part A: Deep WA Opportunity Discovery Databases -->
+      <div class="section-header-block">
+        <div>
+          <span class="resource-category">Part 1 • Live Opportunity Hunting Engines</span>
+          <h2 class="section-heading">Where to Find Hidden Clinical, Lab &amp; Shadowing Roles in Washington State</h2>
+          <p class="section-subheading">
+            Over 60% of research assistantships, community clinic roles, and physician observerships in Washington are never posted on generic volunteer boards. Use these 12 official WA directories and insider tactics to uncover openings directly.
+          </p>
+        </div>
+      </div>
+
+      <div class="discovery-filter-bar" role="group" aria-label="Filter Washington Discovery Portals">
+        <button type="button" class="discovery-filter-btn active" data-disc-cat="all" id="disc-btn-all">All 12 WA Discovery Portals</button>
+        <button type="button" class="discovery-filter-btn" data-disc-cat="Research & Lab Finder" id="disc-btn-research">Research &amp; Lab Finders (UW / Fred Hutch / ITHS)</button>
+        <button type="button" class="discovery-filter-btn" data-disc-cat="Free & FQHC Clinic Network" id="disc-btn-clinics">Free &amp; FQHC Clinic Networks</button>
+        <button type="button" class="discovery-filter-btn" data-disc-cat="Shadowing & Hospital Portals" id="disc-btn-shadowing">Hospital &amp; Shadowing Portals</button>
+        <button type="button" class="discovery-filter-btn" data-disc-cat="WA Fast-Track Credentials" id="disc-btn-credentials">Paid Clinical Fast-Tracks (WA MA-R / EMT / CNA)</button>
+      </div>
+
+      <div class="discovery-portals-grid" id="discovery-portals-grid">
+        <!-- Populated by app.js -->
+      </div>
+
+      <!-- Part B: Washington State Seasonal Application Calendar -->
+      <div class="section-header-block">
+        <div>
+          <span class="resource-category">Part 2 • Washington Recruitment Cycles</span>
+          <h3 class="section-heading" style="font-size: 1.55rem;">Washington State Pre-Health Application Calendar</h3>
+          <p class="section-subheading">
+            Many flagship Seattle, Tacoma, and Spokane hospital and summer research programs open narrow application windows months in advance. Plan your year around these four WA cycles:
+          </p>
+        </div>
+      </div>
+
+      <div class="timeline-grid" id="wa-timeline-grid">
+        <!-- Populated by app.js -->
+      </div>
+
+      <!-- Part C: WA Readiness Checklist + Outreach Email Generator -->
+      <div class="section-header-block">
+        <div>
+          <span class="resource-category">Part 3 • Clearances &amp; Cold Outreach</span>
+          <h3 class="section-heading" style="font-size: 1.55rem;">WA Onboarding Readiness Checklist &amp; Cold-Email Generator</h3>
+          <p class="section-subheading">
+            Washington hospitals and clinics require specific state clearances (including WATCH background checks and WA DOH immunization/TB documentation). Complete these early so you can say "I am 100% cleared to start" in your outreach emails.
+          </p>
+        </div>
+      </div>
+
+      <div class="toolkit-grid">
+        <!-- Interactive Clinical Readiness Checklist -->
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <h3 class="panel-card-title">1. WA Clinical Onboarding Readiness Checklist</h3>
+            <span class="progress-pill" id="checklist-progress-text">0 / 6 Ready</span>
+          </div>
+          <div class="progress-bar-track" aria-hidden="true">
+            <div class="progress-bar-fill" id="checklist-progress-bar" style="width: 0%;"></div>
+          </div>
+          <div class="checklist-items" id="readiness-checklist-container">
+            <!-- Rendered by app.js -->
+          </div>
+        </div>
+
+        <!-- Cold Email & Coordinator Outreach Generator -->
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <h3 class="panel-card-title">2. Washington-Specific Outreach Templates</h3>
+            <button type="button" class="btn btn-secondary btn-sm" id="copy-template-btn">
+              Copy Template
+            </button>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--ink-secondary); margin-bottom: 0.85rem;">
+            Tailored for UW Medicine / Fred Hutch / WSU Spokane Principal Investigators, Sea Mar &amp; Lahai clinic managers, and WWAMI attending physicians.
+          </p>
+          <div class="template-tabs" role="tablist">
+            <button type="button" class="template-tab-btn active" id="tpl-btn-research" data-template="research">UW / Fred Hutch / WSU Lab PI</button>
+            <button type="button" class="template-tab-btn" id="tpl-btn-clinic" data-template="clinic">Sea Mar / Free Clinic Coordinator</button>
+            <button type="button" class="template-tab-btn" id="tpl-btn-shadowing" data-template="shadowing">UW / WWAMI Physician Shadowing</button>
+            <button type="button" class="template-tab-btn" id="tpl-btn-hospital" data-template="hospital">Hospital Volunteer Services Check-In</button>
+          </div>
+          <pre class="template-box" id="outreach-template-preview"></pre>
+        </div>
+      </div>
+
+      <!-- Part D: Strategic Pre-Med Playbook Guides -->
+      <div class="section-header-block" style="margin-top: 1rem;">
+        <div>
+          <span class="resource-category">Part 4 • Strategy Playbook</span>
+          <h3 class="section-heading" style="font-size: 1.45rem;">Washington Pre-Med Insider Guides</h3>
+          <p class="section-subheading">How to navigate institutional affiliation rules, WA's unique MA-R credential, and AMCAS hours in Washington State.</p>
+        </div>
+      </div>
+
+      <div class="resources-grid" id="starter-resources-grid">
+        <!-- Populated by app.js -->
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         TAB 3: MY TRACKER & CLINICAL HOURS LOG
+         ==================================================================== -->
+    <section id="tab-panel-tracker" class="tab-panel" aria-labelledby="nav-tab-tracker">
+      <div class="section-header-block">
+        <div>
+          <h2 class="section-heading">My Saved WA Programs &amp; AMCAS Hours Log</h2>
+          <p class="section-subheading">
+            Track your application pipeline across Washington hospitals, clinics, and labs, and log your verified hours toward UW School of Medicine (WWAMI), WSU Elson S. Floyd, PNWU, and national AMCAS/AACOMAS benchmarks.
+          </p>
+        </div>
+        <button type="button" class="btn btn-secondary" id="export-hours-csv-btn">
+          Export Hours Log (CSV)
+        </button>
+      </div>
+
+      <div class="tracker-summary-grid">
+        <div class="metric-card">
+          <span class="metric-card-label">Direct Clinical Hours</span>
+          <div class="metric-card-value" id="metric-clinical-hours">0.0 hrs</div>
+          <span class="metric-card-target">Target: 150+ hrs (Hospital / FQHC / Hospice)</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-card-label">Research Lab Hours</span>
+          <div class="metric-card-value" id="metric-research-hours">0.0 hrs</div>
+          <span class="metric-card-target">Target: 100+ hrs (UW / Fred Hutch / MultiCare)</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-card-label">Physician Shadowing</span>
+          <div class="metric-card-value" id="metric-shadowing-hours">0.0 hrs</div>
+          <span class="metric-card-target">UW UWSOM Requirement: 40+ hrs recommended</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-card-label">Saved WA Programs</span>
+          <div class="metric-card-value" id="metric-saved-programs">0</div>
+          <span class="metric-card-target">Bookmarked in your pipeline</span>
+        </div>
+      </div>
+
+      <div class="tracker-two-col">
+        <!-- Left: Saved Opportunities Pipeline -->
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <h3 class="panel-card-title">Saved WA Opportunities Pipeline</h3>
+          </div>
+          <div class="saved-list" id="saved-opportunities-list">
+            <!-- Rendered by app.js -->
+          </div>
+        </div>
+
+        <!-- Right: Shift & Hours Logger -->
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <h3 class="panel-card-title">Log Volunteer or Research Shift</h3>
+          </div>
+          <form class="hours-log-form" id="log-hours-form">
+            <div>
+              <label for="log-org-input" class="field-label">WA Facility / Lab Name</label>
+              <input type="text" id="log-org-input" class="form-input" placeholder="e.g. Harborview Medical Center" required />
+            </div>
+            <div>
+              <label for="log-category-select" class="field-label">AMCAS Category</label>
+              <select id="log-category-select" class="form-select">
+                <option value="Clinical (Direct Patient)">Clinical (Direct Patient)</option>
+                <option value="Research / Lab">Research / Lab</option>
+                <option value="Physician Shadowing">Physician Shadowing</option>
+                <option value="Community Health">Community Health</option>
+              </select>
+            </div>
+            <div>
+              <label for="log-hours-input" class="field-label">Hours Completed</label>
+              <input type="number" id="log-hours-input" class="form-input" min="0.5" max="200" step="0.5" placeholder="4.0" required />
+            </div>
+            <div>
+              <label for="log-date-input" class="field-label">Shift Date</label>
+              <input type="date" id="log-date-input" class="form-input" required />
+            </div>
+            <div class="full-span">
+              <label for="log-reflection-input" class="field-label">Patient Impact / Key Takeaway (for UWSOM / WSU / AMCAS Essays)</label>
+              <input type="text" id="log-reflection-input" class="form-input" placeholder="Assisted Spanish-speaking family at Sea Mar White Center clinic intake..." />
+            </div>
+            <div class="full-span">
+              <button type="submit" class="btn btn-primary" id="submit-hours-log-btn" style="width: 100%;">
+                Add Shift to Hours Log
+              </button>
+            </div>
+          </form>
+
+          <div style="overflow-x: auto;">
+            <table class="hours-table" aria-label="Logged Clinical and Research Shifts">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Facility</th>
+                  <th>Category</th>
+                  <th>Hours</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="hours-log-tbody">
+                <!-- Rendered by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ====================================================================
+       MODAL 1: PROGRAM DETAILS & APPLICATION DOSSIER
+       ==================================================================== -->
+  <div class="modal-backdrop" id="detail-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="detail-modal-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <div class="opp-meta-row" id="detail-modal-badges"></div>
+          <h2 class="opp-title" id="detail-modal-title" style="font-size: 1.5rem;">Program Title</h2>
+          <div class="opp-org-line" id="detail-modal-org"></div>
+        </div>
+        <button type="button" class="modal-close-btn" id="close-detail-modal-btn" aria-label="Close modal">&times;</button>
+      </div>
+      <div id="detail-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL 2: POST A NEW WASHINGTON VOLUNTEER OPPORTUNITY
+       ==================================================================== -->
+  <div class="modal-backdrop" id="submit-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="submit-modal-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <span class="resource-category">Washington Coordinator &amp; Student Contributions</span>
+          <h2 class="opp-title" id="submit-modal-title" style="font-size: 1.45rem; margin-top: 0.2rem;">Submit a Washington State Volunteer Opportunity</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="close-submit-modal-btn" aria-label="Close modal">&times;</button>
+      </div>
+      <form id="submit-opportunity-form">
+        <div class="form-grid-2">
+          <div class="full-width">
+            <label for="new-opp-title" class="field-label">Role / Program Title *</label>
+            <input type="text" id="new-opp-title" class="form-input" placeholder="e.g. Emergency Department Patient Support Volunteer" required />
+          </div>
+          <div>
+            <label for="new-opp-org" class="field-label">WA Hospital, Clinic, or Research Institute *</label>
+            <input type="text" id="new-opp-org" class="form-input" placeholder="e.g. EvergreenHealth Kirkland or Sea Mar" required />
+          </div>
+          <div>
+            <label for="new-opp-facility" class="field-label">Facility Type *</label>
+            <select id="new-opp-facility" class="form-select" required>
+              <option value="Hospital / Medical Center">Hospital / Medical Center</option>
+              <option value="Free Clinic / FQHC">Free Clinic / FQHC (Community Health)</option>
+              <option value="Academic / Research Lab">Academic / Research Institute</option>
+              <option value="Hospice & Palliative Care">Hospice &amp; Palliative Care</option>
+              <option value="EMS, Blood & Simulation">EMS, Blood &amp; Clinical Simulation</option>
+              <option value="Public Health & Crisis">Public Health &amp; Crisis Outreach</option>
+            </select>
+          </div>
+          <div>
+            <label for="new-opp-specialty" class="field-label">Medical Field / Specialty *</label>
+            <select id="new-opp-specialty" class="form-select" required>
+              <option value="Emergency Medicine & Trauma">Emergency Medicine &amp; Trauma</option>
+              <option value="Pediatrics & Child Life">Pediatrics &amp; Child Life</option>
+              <option value="Primary Care & Underserved">Primary Care &amp; FQHC / Free Clinic</option>
+              <option value="Oncology & Hematology">Oncology &amp; Cancer Care</option>
+              <option value="Translational & Clinical Research">Clinical &amp; Bench Research</option>
+              <option value="Neurology & Behavioral Health">Neurology &amp; Behavioral Health</option>
+              <option value="Hospice & Geriatrics">Hospice, Palliative &amp; Geriatrics</option>
+              <option value="Surgery, Inpatient & Simulation">Surgery, Inpatient &amp; Simulation</option>
+            </select>
+          </div>
+          <div>
+            <label for="new-opp-zip" class="field-label">WA 5-Digit ZIP Code (98xxx / 99xxx or "Remote") *</label>
+            <input type="text" id="new-opp-zip" class="form-input" placeholder="e.g. 98034 or 99204" required />
+          </div>
+          <div>
+            <label for="new-opp-city" class="field-label">WA City *</label>
+            <input type="text" id="new-opp-city" class="form-input" placeholder="e.g. Kirkland, WA" required />
+          </div>
+          <div>
+            <label for="new-opp-hours" class="field-label">Weekly Hours *</label>
+            <input type="number" id="new-opp-hours" class="form-input" min="1" max="40" value="4" required />
+          </div>
+          <div>
+            <label for="new-opp-duration" class="field-label">Minimum Commitment *</label>
+            <input type="text" id="new-opp-duration" class="form-input" placeholder="e.g. 6 months (100 hrs)" required />
+          </div>
+          <div class="full-width">
+            <label for="new-opp-desc" class="field-label">Role Description &amp; Insider Application Tips *</label>
+            <textarea id="new-opp-desc" class="form-input" rows="3" placeholder="Describe patient contact, duties, and any WA site-specific application windows..." required></textarea>
+          </div>
+          <div>
+            <label for="new-opp-email" class="field-label">Official Portal URL or Coordinator Contact *</label>
+            <input type="text" id="new-opp-email" class="form-input" placeholder="https://... or volunteer@hospital.org" required />
+          </div>
+          <div style="display:flex; flex-direction:column; justify-content:center; gap:0.4rem; padding-top:0.5rem;">
+            <label class="checkbox-row">
+              <span class="checkbox-row-left">
+                <input type="checkbox" id="new-opp-clinical" checked />
+                <span>Direct Patient Contact</span>
+              </span>
+            </label>
+            <label class="checkbox-row">
+              <span class="checkbox-row-left">
+                <input type="checkbox" id="new-opp-starter" checked />
+                <span>Starter Friendly (No prior exp.)</span>
+              </span>
+            </label>
+          </div>
+        </div>
+        <div style="margin-top: 1.35rem; display: flex; justify-content: flex-end; gap: 0.65rem;">
+          <button type="button" class="btn btn-secondary" id="cancel-submit-modal-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-new-opportunity-btn">Publish WA Opportunity</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-container" id="toast-notification" role="status" aria-live="polite"></div>
+
+  <!-- Footer -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <div>
+        <strong>ScrubIn WA</strong> — Built for Washington State high school, undergraduate, and post-bacc students pursuing medicine, nursing, PA, and health sciences.
+      </div>
+      <div>
+        Covers King, Pierce, Snohomish, Spokane, Whatcom, Clark, Yakima, Thurston &amp; Whitman Counties (`980xx`–`994xx`).
+      </div>
+    </div>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>

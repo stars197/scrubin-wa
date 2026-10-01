@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: scrubin-wa
+    runtime: docker
+    region: oregon
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 8080
