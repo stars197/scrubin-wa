@@ -1326,9 +1326,7 @@ Warm regards,
           const status = await res.json();
           const trialCount = status.liveNihStudiesCount || status.nihLiveTrialsCount || 0;
           syncLabel.textContent =
-            trialCount > 0
-              ? `24h Live Sync • +${trialCount} NIH WA Trials`
-              : '24h Live Sync: Active';
+            trialCount > 0 ? `24h Sync • +${trialCount} NIH` : '24h Sync';
         }
       } catch (_e) {
         // Ignore in static mode
@@ -1338,7 +1336,7 @@ Warm regards,
     await refreshSyncBadge();
 
     syncBtn.addEventListener('click', async () => {
-      syncLabel.textContent = 'Syncing NIH & WA Portals...';
+      syncLabel.textContent = 'Syncing...';
       syncBtn.disabled = true;
       try {
         const res = await fetch('/api/sync-now', { method: 'POST' });
@@ -1347,15 +1345,15 @@ Warm regards,
           await loadOpportunities();
           renderAll();
           const trialCount = status.liveNihStudiesCount || status.nihLiveTrialsCount || 0;
-          syncLabel.textContent = `24h Live Sync • +${trialCount} NIH WA Trials`;
+          syncLabel.textContent = `24h Sync • +${trialCount} NIH`;
           showToast(
-            `24h Live Sync complete: Verified WA links + pulled ${trialCount} active UW/Fred Hutch NIH studies!`
+            `24h Sync complete: Verified WA links + pulled ${trialCount} active UW/Fred Hutch NIH studies!`
           );
         } else {
-          syncLabel.textContent = '24h Live Sync: Active';
+          syncLabel.textContent = '24h Sync';
         }
       } catch (_err) {
-        syncLabel.textContent = '24h Live Sync: Active';
+        syncLabel.textContent = '24h Sync';
         showToast('Verified local Washington directory links');
       } finally {
         syncBtn.disabled = false;
@@ -1664,16 +1662,16 @@ Warm regards,
     const summaryEl = document.getElementById('results-summary-text');
     const gridEl = document.getElementById('opportunities-grid');
 
-    summaryEl.innerHTML = `Showing <strong>${list.length}</strong> of <strong>${state.opportunities.length}</strong> verified Washington State programs`;
+    summaryEl.innerHTML = `Showing <strong>${list.length}</strong> of <strong>${state.opportunities.length}</strong> verified WA programs`;
 
     if (list.length === 0) {
       gridEl.innerHTML = `
         <div class="empty-state-box">
-          <h3 class="empty-state-title">No Washington programs match that exact filter combination</h3>
+          <h3 class="empty-state-title">No programs match those exact filters</h3>
           <p class="empty-state-text">
-            Try expanding your distance radius to "All Washington State" or resetting a specialty checkbox to view more hospitals, FQHCs, and research labs across WA.
+            Try expanding your distance to "All WA State" or resetting filters to browse all Washington hospitals, free clinics, and labs.
           </p>
-          <button type="button" class="btn btn-primary" id="empty-reset-btn">Reset All WA Filters</button>
+          <button type="button" class="btn btn-primary" id="empty-reset-btn">Reset Filters</button>
         </div>
       `;
       const resetBtn = document.getElementById('empty-reset-btn');
@@ -1686,49 +1684,28 @@ Warm regards,
         const isSaved = state.savedIds.has(opp.id);
         const distanceBadge =
           opp.distanceMiles !== null
-            ? `<span class="badge badge-distance">${opp.distanceMiles} mi from ${escapeHtml(state.resolvedLocation.zip)}</span>`
+            ? `<span class="badge badge-distance">${opp.distanceMiles} mi</span>`
             : opp.isRemote
-            ? `<span class="badge badge-distance">Remote / Telehealth</span>`
+            ? `<span class="badge badge-distance">Remote</span>`
             : '';
 
-        const regionBadge = opp.waRegion
-          ? `<span class="badge badge-region">${escapeHtml(opp.waRegion)}</span>`
-          : '';
-
         const clinicalBadge = opp.directPatientContact
-          ? `<span class="badge badge-clinical">Direct Patient Contact</span>`
-          : `<span class="badge badge-research">Research / Simulation</span>`;
+          ? `<span class="badge badge-clinical">Direct Patient Care</span>`
+          : `<span class="badge badge-research">Research / Sim</span>`;
 
         const starterBadge = opp.starterFriendly
           ? `<span class="badge badge-starter">Starter Friendly</span>`
           : '';
 
-        const statusBadge =
-          opp.status === 'Closing Soon'
-            ? `<span class="badge badge-urgent">Summer Cycle: Apply Nov–Jan</span>`
-            : `<span class="badge badge-facility">${escapeHtml(opp.status)}</span>`;
-
-        const scheduleParts = [];
-        if (opp.weekendAvailable) scheduleParts.push('Weekends');
-        if (opp.eveningAvailable) scheduleParts.push('Evenings');
-        scheduleParts.push('Weekdays');
-
-        const perks = [];
-        if (opp.shadowingIncluded) perks.push('Shadowing / Observation Pathway');
-        if (opp.lorEligible) perks.push('LOR Eligible');
-        if (opp.applicationCycle) perks.push(opp.applicationCycle);
-
-        const insiderHtml = opp.insiderTip
-          ? `
-            <div class="insider-tip-box">
-              <span class="insider-tip-label">WA Insider Tip</span>
-              <span>${escapeHtml(opp.insiderTip)}</span>
-            </div>
-          `
-          : '';
+        const hsEligible = (opp.studentLevels || []).some((l) => l.includes('16+'));
+        const quickFacts = [
+          `${opp.weeklyHours} hrs/wk • ${opp.minDuration}`,
+          hsEligible ? 'Ages 16+ & College' : 'Undergrad / Gap Year'
+        ];
+        if (opp.shadowingIncluded) quickFacts.push('Shadowing Included');
 
         const officialLinkBtn = opp.portalUrl
-          ? `<a href="${escapeHtml(opp.portalUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">Official WA Site &nearr;</a>`
+          ? `<a href="${escapeHtml(opp.portalUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">Official Site &nearr;</a>`
           : '';
 
         return `
@@ -1737,20 +1714,18 @@ Warm regards,
               <div>
                 <div class="opp-meta-row">
                   <span class="badge badge-facility">${escapeHtml(opp.facilityType)}</span>
-                  ${regionBadge}
                   ${clinicalBadge}
                   ${starterBadge}
                   ${distanceBadge}
-                  ${statusBadge}
                 </div>
-                <h3 class="opp-title">${escapeHtml(opp.title)}</h3>
+                <h3 class="opp-title" data-view-detail-id="${escapeHtml(opp.id)}">${escapeHtml(opp.title)}</h3>
                 <div class="opp-org-line">
                   <span>${escapeHtml(opp.organization)}</span>
                   <span>•</span>
-                  <span class="opp-location-text">${escapeHtml(opp.city)} (ZIP ${escapeHtml(opp.zipCode)})</span>
+                  <span class="opp-location-text">${escapeHtml(opp.city)} (${escapeHtml(opp.zipCode)})</span>
                 </div>
               </div>
-              <button type="button" class="bookmark-btn ${isSaved ? 'saved' : ''}" data-bookmark-id="${escapeHtml(opp.id)}" aria-label="${isSaved ? 'Remove from saved programs' : 'Save program to tracker'}" title="${isSaved ? 'Saved in My Tracker' : 'Save to My Tracker'}">
+              <button type="button" class="bookmark-btn ${isSaved ? 'saved' : ''}" data-bookmark-id="${escapeHtml(opp.id)}" aria-label="${isSaved ? 'Remove from saved programs' : 'Save program'}" title="${isSaved ? 'Saved' : 'Save'}">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="${isSaved ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
                 </svg>
@@ -1759,38 +1734,14 @@ Warm regards,
 
             <p class="opp-description">${escapeHtml(opp.description)}</p>
 
-            ${insiderHtml}
-
-            <div class="opp-specs-strip">
-              <div class="spec-cell">
-                <span class="spec-label">Medical Field</span>
-                <span class="spec-value">${escapeHtml(opp.specialty)}</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Commitment</span>
-                <span class="spec-value">${opp.weeklyHours} hrs/wk • ${escapeHtml(opp.minDuration)}</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">WA Eligibility</span>
-                <span class="spec-value">${escapeHtml((opp.studentLevels || []).join(', '))}</span>
-              </div>
-              <div class="spec-cell">
-                <span class="spec-label">Shift Windows</span>
-                <span class="spec-value">${escapeHtml(scheduleParts.join(', '))}</span>
-              </div>
-            </div>
-
             <div class="opp-card-footer">
               <div class="opp-perks-list">
-                ${perks.map((p) => `<span class="perk-tag">${escapeHtml(p)}</span>`).join('')}
+                ${quickFacts.map((p) => `<span class="perk-tag">${escapeHtml(p)}</span>`).join('')}
               </div>
               <div class="opp-actions">
                 ${officialLinkBtn}
-                <button type="button" class="btn btn-secondary btn-sm" data-save-toggle-id="${escapeHtml(opp.id)}">
-                  ${isSaved ? '✓ Saved' : '+ Save'}
-                </button>
                 <button type="button" class="btn btn-primary btn-sm" data-view-detail-id="${escapeHtml(opp.id)}">
-                  Full Dossier &amp; Apply
+                  Details &amp; Apply
                 </button>
               </div>
             </div>
@@ -2212,6 +2163,20 @@ Warm regards,
     });
 
     document.getElementById('reset-all-filters-btn').addEventListener('click', resetAllFilters);
+
+    const openFiltersBtn = document.getElementById('mobile-open-filters-btn');
+    const closeFiltersBtn = document.getElementById('mobile-close-filters-btn');
+    const filtersDrawer = document.getElementById('filters-sidebar-drawer');
+    if (openFiltersBtn && filtersDrawer) {
+      openFiltersBtn.addEventListener('click', () => {
+        filtersDrawer.classList.add('mobile-open');
+      });
+    }
+    if (closeFiltersBtn && filtersDrawer) {
+      closeFiltersBtn.addEventListener('click', () => {
+        filtersDrawer.classList.remove('mobile-open');
+      });
+    }
   }
 
   function updateZipPills(activeZip) {
