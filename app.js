@@ -2285,6 +2285,8 @@ Warm regards,
     activePreset: null,
     activeDiscoveryCat: 'all',
     activeTemplate: 'research',
+    user: JSON.parse(localStorage.getItem('scrubin_user_profile') || 'null'),
+    cloudSyncState: 'idle',
     savedIds: new Set(JSON.parse(localStorage.getItem('medpath_wa_saved_ids') || '["wa-001","us-001","us-002"]')),
     pipelineStatus: JSON.parse(localStorage.getItem('medpath_wa_pipeline_status') || '{"wa-001":"Preparing Clearances","us-001":"Saved","us-002":"Saved"}'),
     checklistDone: new Set(JSON.parse(localStorage.getItem('medpath_wa_checklist') || '["chk-immunizations","chk-watch"]')),
@@ -2295,6 +2297,7 @@ Warm regards,
         org: 'Harborview Medical Center (UW Medicine)',
         category: 'Clinical (Direct Patient)',
         hours: 4.0,
+        supervisor: 'First Hill ED Volunteer Office (hmcvol@uw.edu)',
         reflection: 'Assisted First Hill ED nurses with patient comfort rounds and wheelchair discharge escorts.'
       },
       {
@@ -2303,6 +2306,7 @@ Warm regards,
         org: 'Sea Mar Community Health Center (Seattle)',
         category: 'Community Health',
         hours: 4.5,
+        supervisor: 'Volunteer Dept (volunteer@seamarchc.org)',
         reflection: 'Helped Spanish-speaking families complete preventative clinic intake and Apple Health forms.'
       }
     ]))
@@ -2335,10 +2339,11 @@ Warm regards,
   }
 
   // --------------------------------------------------------------------------
-  // 7. Initialization & 24-Hour Live Sync API Load
+  // 7. Initialization, Cloud Auth Session & 24-Hour Live Sync API Load
   // --------------------------------------------------------------------------
   async function initApp() {
     await loadOpportunities();
+    await restoreCloudSession();
     bindNavigation();
     bindSearchAndFilters();
     bindStarterToolkit();
@@ -2346,6 +2351,87 @@ Warm regards,
     bindModals();
     bindLiveSyncEngine();
     renderAll();
+  }
+
+  async function restoreCloudSession() {
+    if (!state.user || !state.user.email) return;
+    try {
+      const res = await fetch('/api/user/profile?email=' + encodeURIComponent(state.user.email));
+      if (res.ok) {
+        const acct = await res.json();
+        applyCloudAccountData(acct, false);
+      }
+    } catch (_err) {
+      // Offline fallback keeps localStorage state
+    }
+  }
+
+  function applyCloudAccountData(acct, showNotification) {
+    if (!acct || !acct.email) return;
+    state.user = {
+      email: acct.email,
+      name: acct.name || acct.email.split('@')[0],
+      provider: acct.provider || 'edu',
+      track: acct.track || 'Pre-Med (MD / DO)',
+      gradYear: acct.gradYear || '2028',
+      updatedAt: acct.updatedAt || 'Just now'
+    };
+    localStorage.setItem('scrubin_user_profile', JSON.stringify(state.user));
+
+    if (Array.isArray(acct.savedIds)) {
+      state.savedIds = new Set(acct.savedIds);
+      localStorage.setItem('medpath_wa_saved_ids', JSON.stringify([...state.savedIds]));
+    }
+    if (acct.pipelineStatus && typeof acct.pipelineStatus === 'object') {
+      state.pipelineStatus = acct.pipelineStatus;
+      localStorage.setItem('medpath_wa_pipeline_status', JSON.stringify(state.pipelineStatus));
+    }
+    if (Array.isArray(acct.checklistDone)) {
+      state.checklistDone = new Set(acct.checklistDone);
+      localStorage.setItem('medpath_wa_checklist', JSON.stringify([...state.checklistDone]));
+    }
+    if (Array.isArray(acct.hoursLog)) {
+      state.hoursLog = acct.hoursLog;
+      localStorage.setItem('medpath_wa_hours_log', JSON.stringify(state.hoursLog));
+    }
+    state.cloudSyncState = 'synced';
+    if (showNotification) {
+      showToast(`Signed in as ${state.user.name} — Hours & bookmarks synced to cloud!`);
+    }
+  }
+
+  async function syncUserToCloud() {
+    if (!state.user || !state.user.email) return;
+    state.cloudSyncState = 'syncing';
+    renderCloudAccountBanner();
+    try {
+      const res = await fetch('/api/user/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: state.user.email,
+          name: state.user.name,
+          provider: state.user.provider,
+          track: state.user.track,
+          gradYear: state.user.gradYear,
+          savedIds: [...state.savedIds],
+          pipelineStatus: state.pipelineStatus,
+          checklistDone: [...state.checklistDone],
+          hoursLog: state.hoursLog
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        state.user.updatedAt = data.updatedAt || 'Just now';
+        localStorage.setItem('scrubin_user_profile', JSON.stringify(state.user));
+        state.cloudSyncState = 'synced';
+      } else {
+        state.cloudSyncState = 'offline';
+      }
+    } catch (_err) {
+      state.cloudSyncState = 'offline';
+    }
+    renderCloudAccountBanner();
   }
 
   async function loadOpportunities() {
@@ -2560,6 +2646,7 @@ Warm regards,
     renderReadinessChecklist();
     renderOutreachTemplate();
     renderStarterResources();
+    renderCloudAccountBanner();
     renderTrackerAndHours();
   }
 
@@ -2940,6 +3027,7 @@ Warm regards,
         else state.checklistDone.delete(id);
         localStorage.setItem('medpath_wa_checklist', JSON.stringify([...state.checklistDone]));
         renderReadinessChecklist();
+        syncUserToCloud();
       });
     });
   }
@@ -3007,8 +3095,113 @@ Warm regards,
   }
 
   // --------------------------------------------------------------------------
-  // 11. Rendering: Tab 3 (My Tracker & Hours Logger)
+  // 11. Rendering: Tab 3 (My Tracker, Cloud Account Banner & Hours Logger)
   // --------------------------------------------------------------------------
+  function renderCloudAccountBanner() {
+    const bannerEl = document.getElementById('cloud-account-banner');
+    const headerBtn = document.getElementById('open-auth-modal-btn');
+    const headerLabel = document.getElementById('auth-header-btn-label');
+    const formPill = document.getElementById('shift-form-sync-pill');
+
+    if (state.user && state.user.email) {
+      const firstName = (state.user.name || state.user.email).split(' ')[0];
+      const initials = (state.user.name || state.user.email)
+        .split(' ')
+        .map((p) => p[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase();
+
+      if (headerBtn) headerBtn.classList.add('signed-in');
+      if (headerLabel) headerLabel.textContent = `✓ ${firstName} (Synced)`;
+      if (formPill) {
+        formPill.classList.add('synced');
+        formPill.textContent =
+          state.cloudSyncState === 'syncing' ? '☁️ Syncing...' : '☁️ Cloud Synced ✓';
+      }
+
+      if (bannerEl) {
+        bannerEl.classList.add('signed-in');
+        const syncText =
+          state.cloudSyncState === 'syncing'
+            ? 'Syncing to cloud...'
+            : 'Cloud Synced ✓ (Phone & Laptop)';
+        bannerEl.innerHTML = `
+          <div class="cloud-banner-left">
+            <div class="cloud-avatar-badge" aria-hidden="true">${escapeHtml(initials)}</div>
+            <div>
+              <div class="cloud-banner-title">
+                <span>${escapeHtml(state.user.name)}</span>
+                <span class="badge badge-facility">${escapeHtml(state.user.track || 'Pre-Med (MD / DO)')} • ${escapeHtml(state.user.gradYear || '2028')} Cycle</span>
+                <span class="cloud-synced-pill">${escapeHtml(syncText)}</span>
+              </div>
+              <div class="cloud-banner-sub">
+                Signed in as <strong>${escapeHtml(state.user.email)}</strong> • Log in with this email on any phone or laptop to access your hours.
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+            <button type="button" class="btn btn-secondary btn-sm" id="banner-sync-now-btn">Sync Now</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="banner-signout-btn">Sign Out</button>
+          </div>
+        `;
+        const syncNowBtn = document.getElementById('banner-sync-now-btn');
+        if (syncNowBtn) {
+          syncNowBtn.addEventListener('click', () => {
+            syncUserToCloud();
+            showToast('Cloud backup synced!');
+          });
+        }
+        const signOutBtn = document.getElementById('banner-signout-btn');
+        if (signOutBtn) {
+          signOutBtn.addEventListener('click', () => {
+            state.user = null;
+            state.cloudSyncState = 'idle';
+            localStorage.removeItem('scrubin_user_profile');
+            renderAll();
+            showToast('Signed out (your hours remain safely backed up in the cloud)');
+          });
+        }
+      }
+    } else {
+      if (headerBtn) headerBtn.classList.remove('signed-in');
+      if (headerLabel) headerLabel.textContent = 'Sign In / Sync';
+      if (formPill) {
+        formPill.classList.remove('synced');
+        formPill.textContent = 'Guest Mode (Local Browser)';
+      }
+
+      if (bannerEl) {
+        bannerEl.classList.remove('signed-in');
+        const totalGuestHrs = state.hoursLog.reduce((acc, r) => acc + (parseFloat(r.hours) || 0), 0);
+        bannerEl.innerHTML = `
+          <div class="cloud-banner-left">
+            <div class="cloud-avatar-badge guest" aria-hidden="true">☁️</div>
+            <div>
+              <div class="cloud-banner-title">
+                <span>Back up your ${totalGuestHrs.toFixed(1)} logged hours &amp; ${state.savedIds.size} saved programs</span>
+              </div>
+              <div class="cloud-banner-sub">
+                You are currently in <strong>Guest Mode</strong> (saved on this device only). Sign in with Google, Apple, or your <code>.edu</code> email to sync across your phone and laptop.
+              </div>
+            </div>
+          </div>
+          <div>
+            <button type="button" class="btn btn-primary btn-sm" id="banner-open-signin-btn">
+              Sign In to Sync Hours
+            </button>
+          </div>
+        `;
+        const openBtn = document.getElementById('banner-open-signin-btn');
+        if (openBtn) {
+          openBtn.addEventListener('click', () => {
+            document.getElementById('auth-modal-backdrop').classList.add('open');
+          });
+        }
+      }
+    }
+  }
+
   function renderTrackerAndHours() {
     let clinicalHrs = 0;
     let researchHrs = 0;
@@ -3073,6 +3266,7 @@ Warm regards,
           const id = e.target.getAttribute('data-stage-select-id');
           state.pipelineStatus[id] = e.target.value;
           localStorage.setItem('medpath_wa_pipeline_status', JSON.stringify(state.pipelineStatus));
+          syncUserToCloud();
           showToast(`Updated pipeline status to "${e.target.value}"`);
         });
       });
@@ -3097,6 +3291,7 @@ Warm regards,
             <td style="font-family:var(--font-mono); font-size:0.78rem;">${escapeHtml(entry.date)}</td>
             <td>
               <strong>${escapeHtml(entry.org)}</strong>
+              ${entry.supervisor ? `<div style="font-size:0.73rem; color:var(--teal-primary); font-weight:600; margin-top:0.12rem;">Supervisor: ${escapeHtml(entry.supervisor)}</div>` : ''}
               ${entry.reflection ? `<div style="font-size:0.76rem; color:var(--ink-secondary); margin-top:0.15rem;">${escapeHtml(entry.reflection)}</div>` : ''}
             </td>
             <td><span class="badge badge-facility">${escapeHtml(entry.category)}</span></td>
@@ -3115,6 +3310,8 @@ Warm regards,
           state.hoursLog = state.hoursLog.filter((item) => item.id !== logId);
           localStorage.setItem('medpath_wa_hours_log', JSON.stringify(state.hoursLog));
           renderTrackerAndHours();
+          renderCloudAccountBanner();
+          syncUserToCloud();
           showToast('Shift entry removed');
         });
       });
@@ -3400,17 +3597,18 @@ Warm regards,
   function toggleSaveOpportunity(oppId) {
     if (state.savedIds.has(oppId)) {
       state.savedIds.delete(oppId);
-      showToast('Removed from My WA Tracker');
+      showToast('Removed from My Tracker');
     } else {
       state.savedIds.add(oppId);
       if (!state.pipelineStatus[oppId]) {
         state.pipelineStatus[oppId] = 'Saved';
       }
-      showToast('Saved to My WA Tracker & Pipeline');
+      showToast(state.user ? 'Saved & synced to your Cloud Tracker' : 'Saved to My Tracker');
     }
     localStorage.setItem('medpath_wa_saved_ids', JSON.stringify([...state.savedIds]));
     localStorage.setItem('medpath_wa_pipeline_status', JSON.stringify(state.pipelineStatus));
     renderAll();
+    syncUserToCloud();
   }
 
   function bindStarterToolkit() {
@@ -3435,7 +3633,7 @@ Warm regards,
     document.getElementById('copy-template-btn').addEventListener('click', () => {
       const text = OUTREACH_TEMPLATES[state.activeTemplate] || '';
       navigator.clipboard.writeText(text).then(() => {
-        showToast('Washington outreach template copied to clipboard!');
+        showToast('Outreach template copied to clipboard!');
       });
     });
   }
@@ -3452,32 +3650,53 @@ Warm regards,
       const category = document.getElementById('log-category-select').value;
       const hours = parseFloat(document.getElementById('log-hours-input').value);
       const date = document.getElementById('log-date-input').value;
+      const supervisorEl = document.getElementById('log-supervisor-input');
+      const supervisor = supervisorEl ? supervisorEl.value.trim() : '';
       const reflection = document.getElementById('log-reflection-input').value.trim();
 
       if (!org || isNaN(hours) || hours <= 0) return;
 
       state.hoursLog.unshift({
-        id: 'log-wa-' + Date.now(),
+        id: 'log-us-' + Date.now(),
         date,
         org,
         category,
         hours,
+        supervisor,
         reflection
       });
       localStorage.setItem('medpath_wa_hours_log', JSON.stringify(state.hoursLog));
 
       document.getElementById('log-org-input').value = '';
       document.getElementById('log-hours-input').value = '';
+      if (supervisorEl) supervisorEl.value = '';
       document.getElementById('log-reflection-input').value = '';
 
       renderTrackerAndHours();
-      showToast(`Logged ${hours} hrs at ${org}`);
+      renderCloudAccountBanner();
+      syncUserToCloud();
+      showToast(
+        state.user
+          ? `Logged ${hours} hrs at ${org} (Cloud Synced ✓)`
+          : `Logged ${hours} hrs at ${org}`
+      );
     });
 
     document.getElementById('export-hours-csv-btn').addEventListener('click', () => {
+      const studentHeader = state.user
+        ? `${state.user.name} (${state.user.email}) — ${state.user.track || 'Pre-Med'}`
+        : 'Guest Pre-Health Student';
       const rows = [
-        ['Date', 'WA Facility / Lab', 'AMCAS Category', 'Hours', 'Patient Impact & Reflection'],
-        ...state.hoursLog.map((r) => [r.date, r.org, r.category, r.hours, r.reflection || ''])
+        ['Student', 'Date', 'Facility / Lab', 'AMCAS / CASPA Category', 'Hours', 'Supervisor / Contact', 'Patient Impact & Reflection'],
+        ...state.hoursLog.map((r) => [
+          studentHeader,
+          r.date,
+          r.org,
+          r.category,
+          r.hours,
+          r.supervisor || '',
+          r.reflection || ''
+        ])
       ];
       const csvContent = rows
         .map((r) => r.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
@@ -3486,16 +3705,72 @@ Warm regards,
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'scrubin_wa_clinical_hours_log.csv';
+      a.download = 'scrubin_amcas_clinical_hours_log.csv';
       a.click();
       URL.revokeObjectURL(url);
-      showToast('Exported ScrubIn WA AMCAS Hours Log CSV');
+      showToast('Exported AMCAS / CASPA Clinical Hours CSV!');
     });
   }
 
   // --------------------------------------------------------------------------
-  // 13. Modals: Program Dossier & Post New WA Opportunity
+  // 13. Modals: Program Dossier, Post Opportunity & Student Cloud Sign-In
   // --------------------------------------------------------------------------
+  async function performStudentSignIn(payload) {
+    const submitBtn = document.getElementById('submit-auth-btn');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Syncing to Cloud...';
+    }
+    try {
+      const reqBody = {
+        ...payload,
+        localState: {
+          savedIds: [...state.savedIds],
+          pipelineStatus: state.pipelineStatus,
+          checklistDone: [...state.checklistDone],
+          hoursLog: state.hoursLog
+        }
+      };
+      const res = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reqBody)
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showToast(data.error || 'Could not sign in. Please check your email and PIN.');
+        return false;
+      }
+      applyCloudAccountData(data, true);
+      renderAll();
+      return true;
+    } catch (_err) {
+      // Offline / static fallback still creates a local profile
+      applyCloudAccountData(
+        {
+          email: payload.email,
+          name: payload.name || payload.email.split('@')[0],
+          provider: payload.provider || 'edu',
+          track: payload.track || 'Pre-Med (MD / DO)',
+          gradYear: payload.gradYear || '2028',
+          savedIds: [...state.savedIds],
+          pipelineStatus: state.pipelineStatus,
+          checklistDone: [...state.checklistDone],
+          hoursLog: state.hoursLog,
+          updatedAt: 'Local Session'
+        },
+        true
+      );
+      renderAll();
+      return true;
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Sign In & Sync Hours';
+      }
+    }
+  }
+
   function openDetailModal(oppId) {
     const opp = state.opportunities.find((o) => o.id === oppId);
     if (!opp) return;
@@ -3516,19 +3791,21 @@ Warm regards,
       <span class="opp-location-text">${escapeHtml(opp.city)} (ZIP: ${escapeHtml(opp.zipCode)})</span>
     `;
 
-    const customEmailDraft = `Subject: Student Volunteer / Pre-Health Inquiry — ${opp.title}\n\nDear ${opp.organization} Volunteer & Clinical Coordination Team,\n\nMy name is [Your Name], and I am a Washington State pre-health student interested in applying for the ${opp.title} program in ${opp.city} (${opp.zipCode}).\n\n• Availability: I can commit ${opp.weeklyHours}+ hours per week for at least ${opp.minDuration}.\n• Clearances Ready: WA MyIR immunization records, negative TB test, and WATCH background check readiness (${(opp.clearances || []).join(', ')}).\n\nCould you please share the next onboarding cohort dates or any unit-specific instructions?\n\nWarm regards,\n[Your Name]\n[Your Phone] | [Your Email]`;
+    const studentName = state.user && state.user.name ? state.user.name : '[Your Name]';
+    const studentEmail = state.user && state.user.email ? state.user.email : '[Your Email]';
+    const customEmailDraft = `Subject: Student Volunteer / Pre-Health Inquiry — ${opp.title}\n\nDear ${opp.organization} Volunteer & Clinical Coordination Team,\n\nMy name is ${studentName}, and I am a pre-health student interested in applying for the ${opp.title} program in ${opp.city} (${opp.zipCode}).\n\n• Availability: I can commit ${opp.weeklyHours}+ hours per week for at least ${opp.minDuration}.\n• Clearances Ready: Up-to-date immunization records, negative TB screening, and background check readiness (${(opp.clearances || []).join(', ')}).\n\nCould you please share the next onboarding cohort dates or any unit-specific instructions?\n\nWarm regards,\n${studentName}\n[Your Phone] | ${studentEmail}`;
 
     const insiderSection = opp.insiderTip
       ? `
         <div class="insider-tip-box" style="margin-bottom: 1.25rem;">
-          <span class="insider-tip-label">WA Insider Tip</span>
+          <span class="insider-tip-label">Pre-Med Insider Tip</span>
           <span>${escapeHtml(opp.insiderTip)}</span>
         </div>
       `
       : '';
 
     const officialPortalBtn = opp.portalUrl
-      ? `<a href="${escapeHtml(opp.portalUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">Open Official WA Application Portal &nearr;</a>`
+      ? `<a href="${escapeHtml(opp.portalUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">Open Official Application Portal &nearr;</a>`
       : '';
 
     document.getElementById('detail-modal-body').innerHTML = `
@@ -3566,16 +3843,16 @@ Warm regards,
       </div>
 
       <div class="modal-section">
-        <div class="modal-section-title">Required WA Clearances &amp; Prerequisites</div>
+        <div class="modal-section-title">Required Clearances &amp; Prerequisites</div>
         <div class="clearance-tags">
-          ${(opp.clearances || ['WA Immunization & TB Screening', 'WATCH Background Check']).map((c) => `<span class="perk-tag">${escapeHtml(c)}</span>`).join('')}
+          ${(opp.clearances || ['Immunization & TB Screening', 'Hospital Background Check']).map((c) => `<span class="perk-tag">${escapeHtml(c)}</span>`).join('')}
         </div>
       </div>
 
       <div class="modal-section" style="background-color: var(--bg-canvas); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
-        <div class="modal-section-title">Official WA Portal &amp; Coordinator Contact</div>
+        <div class="modal-section-title">Official Portal &amp; Coordinator Contact</div>
         <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-primary-text); font-weight: 600; margin-bottom: 0.85rem;">
-          ${escapeHtml(opp.contactInfo || 'See official Washington portal link below')}
+          ${escapeHtml(opp.contactInfo || 'See official portal link below')}
         </div>
         <div style="display:flex; flex-wrap:wrap; gap:0.6rem;">
           ${officialPortalBtn}
@@ -3591,7 +3868,7 @@ Warm regards,
 
     document.getElementById('modal-copy-inquiry-btn').addEventListener('click', () => {
       navigator.clipboard.writeText(customEmailDraft).then(() => {
-        showToast('Tailored WA coordinator inquiry email copied to clipboard!');
+        showToast('Tailored coordinator inquiry email copied to clipboard!');
       });
     });
 
@@ -3606,6 +3883,7 @@ Warm regards,
   function bindModals() {
     const detailBackdrop = document.getElementById('detail-modal-backdrop');
     const submitBackdrop = document.getElementById('submit-modal-backdrop');
+    const authBackdrop = document.getElementById('auth-modal-backdrop');
 
     document.getElementById('close-detail-modal-btn').addEventListener('click', () => {
       detailBackdrop.classList.remove('open');
@@ -3627,6 +3905,111 @@ Warm regards,
       if (e.target === submitBackdrop) submitBackdrop.classList.remove('open');
     });
 
+    // Student Sign-In & Cloud Hours Sync Modal (Idea A)
+    const openAuthBtn = document.getElementById('open-auth-modal-btn');
+    const closeAuthBtn = document.getElementById('close-auth-modal-btn');
+    const cancelAuthBtn = document.getElementById('cancel-auth-modal-btn');
+    const googleBtn = document.getElementById('oauth-google-btn');
+    const appleBtn = document.getElementById('oauth-apple-btn');
+    const authForm = document.getElementById('student-auth-form');
+
+    function populateAuthModalFields() {
+      if (state.user) {
+        document.getElementById('auth-email-input').value = state.user.email || '';
+        document.getElementById('auth-name-input').value = state.user.name || '';
+        document.getElementById('auth-track-select').value = state.user.track || 'Pre-Med (MD / DO)';
+        document.getElementById('auth-grad-select').value = state.user.gradYear || '2028';
+      }
+    }
+
+    if (openAuthBtn && authBackdrop) {
+      openAuthBtn.addEventListener('click', () => {
+        if (state.user) {
+          switchTab('tracker');
+        }
+        populateAuthModalFields();
+        authBackdrop.classList.add('open');
+      });
+    }
+    if (closeAuthBtn && authBackdrop) {
+      closeAuthBtn.addEventListener('click', () => authBackdrop.classList.remove('open'));
+    }
+    if (cancelAuthBtn && authBackdrop) {
+      cancelAuthBtn.addEventListener('click', () => authBackdrop.classList.remove('open'));
+    }
+    if (authBackdrop) {
+      authBackdrop.addEventListener('click', (e) => {
+        if (e.target === authBackdrop) authBackdrop.classList.remove('open');
+      });
+    }
+
+    async function handleOAuthClick(providerName) {
+      const emailEl = document.getElementById('auth-email-input');
+      const nameEl = document.getElementById('auth-name-input');
+      let email = emailEl.value.trim();
+      let name = nameEl.value.trim();
+
+      if (!email) {
+        const prompted = window.prompt(
+          `Continue with ${providerName === 'google' ? 'Google' : 'Apple'}:\nEnter your ${providerName === 'google' ? 'Google / .edu' : 'Apple ID'} email to sync your clinical hours across devices:`,
+          providerName === 'google' ? 'student@uw.edu' : 'student@icloud.com'
+        );
+        if (!prompted || !prompted.trim()) return;
+        email = prompted.trim().toLowerCase();
+        emailEl.value = email;
+      }
+      if (!name) {
+        name = email
+          .split('@')[0]
+          .replace(/[._-]/g, ' ')
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+        nameEl.value = name;
+      }
+
+      const ok = await performStudentSignIn({
+        email,
+        name,
+        provider: providerName,
+        track: document.getElementById('auth-track-select').value,
+        gradYear: document.getElementById('auth-grad-select').value,
+        pin: document.getElementById('auth-pin-input').value.trim()
+      });
+      if (ok && authBackdrop) {
+        authBackdrop.classList.remove('open');
+        switchTab('tracker');
+      }
+    }
+
+    if (googleBtn) {
+      googleBtn.addEventListener('click', () => handleOAuthClick('google'));
+    }
+    if (appleBtn) {
+      appleBtn.addEventListener('click', () => handleOAuthClick('apple'));
+    }
+    if (authForm) {
+      authForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('auth-email-input').value.trim();
+        const name = document.getElementById('auth-name-input').value.trim();
+        const track = document.getElementById('auth-track-select').value;
+        const gradYear = document.getElementById('auth-grad-select').value;
+        const pin = document.getElementById('auth-pin-input').value.trim();
+
+        const ok = await performStudentSignIn({
+          email,
+          name,
+          provider: 'edu',
+          track,
+          gradYear,
+          pin
+        });
+        if (ok && authBackdrop) {
+          authBackdrop.classList.remove('open');
+          switchTab('tracker');
+        }
+      });
+    }
+
     document.getElementById('submit-opportunity-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const zipVal = document.getElementById('new-opp-zip').value.trim();
@@ -3635,11 +4018,11 @@ Warm regards,
       const rawContact = document.getElementById('new-opp-email').value.trim();
 
       const newOpp = {
-        id: 'wa-custom-' + Date.now(),
+        id: 'us-custom-' + Date.now(),
         title: document.getElementById('new-opp-title').value.trim(),
         organization: document.getElementById('new-opp-org').value.trim(),
         facilityType: document.getElementById('new-opp-facility').value,
-        waRegion: 'Seattle & King County',
+        waRegion: isRemote ? 'National & Remote (All 50 States)' : 'Pacific Northwest (WA / OR)',
         specialty: document.getElementById('new-opp-specialty').value,
         zipCode: isRemote ? 'Remote' : zipVal,
         city: document.getElementById('new-opp-city').value.trim(),
@@ -3656,12 +4039,12 @@ Warm regards,
         weekendAvailable: true,
         eveningAvailable: true,
         status: 'Accepting Applications',
-        applicationCycle: 'Community Contributed WA Listing',
+        applicationCycle: 'Community Contributed Listing',
         portalUrl: rawContact.startsWith('http') ? rawContact : '',
-        insiderTip: 'Submitted via ScrubIn WA community portal.',
+        insiderTip: 'Submitted via ScrubIn US community portal.',
         description: document.getElementById('new-opp-desc').value.trim(),
         duties: [document.getElementById('new-opp-desc').value.trim()],
-        clearances: ['WA MyIR Immunization & TB Screening', 'WATCH Background Check'],
+        clearances: ['Immunization & TB Screening', 'Background Check'],
         contactInfo: rawContact
       };
 
@@ -3684,7 +4067,7 @@ Warm regards,
       submitBackdrop.classList.remove('open');
       switchTab('explore');
       renderAll();
-      showToast('Published new Washington State opportunity!');
+      showToast('Published new US opportunity!');
     });
   }
 

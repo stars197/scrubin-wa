@@ -98,6 +98,23 @@ def init_db():
       )
       """
   )
+  cur.execute(
+      """
+      CREATE TABLE IF NOT EXISTS student_accounts (
+          email TEXT PRIMARY KEY,
+          name TEXT NOT NULL,
+          provider TEXT NOT NULL,
+          track TEXT NOT NULL,
+          grad_year TEXT NOT NULL,
+          pin_hash TEXT,
+          saved_ids TEXT NOT NULL,
+          pipeline_status TEXT NOT NULL,
+          checklist_done TEXT NOT NULL,
+          hours_log TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+      )
+      """
+  )
   conn.commit()
   conn.close()
 
@@ -411,6 +428,187 @@ def insert_custom_opportunity(opp_dict):
   return opp_dict
 
 
+def _merge_hours_logs(cloud_list, local_list):
+  """Merges two lists of shift log entries without duplicating shift IDs."""
+  by_id = {}
+  for item in (cloud_list or []) + (local_list or []):
+    if isinstance(item, dict) and item.get("id"):
+      by_id[item["id"]] = item
+  merged = list(by_id.values())
+  merged.sort(key=lambda x: x.get("date", ""), reverse=True)
+  return merged
+
+
+def get_student_account(email):
+  clean_email = (email or "").strip().lower()
+  if not clean_email:
+    return None
+  conn = sqlite3.connect(DB_PATH)
+  cur = conn.cursor()
+  cur.execute(
+      "SELECT email, name, provider, track, grad_year, saved_ids, pipeline_status, checklist_done, hours_log, updated_at FROM student_accounts WHERE email = ?",
+      (clean_email,),
+  )
+  row = cur.fetchone()
+  conn.close()
+  if not row:
+    return None
+  return {
+      "email": row[0],
+      "name": row[1],
+      "provider": row[2],
+      "track": row[3],
+      "gradYear": row[4],
+      "savedIds": json.loads(row[5] or "[]"),
+      "pipelineStatus": json.loads(row[6] or "{}"),
+      "checklistDone": json.loads(row[7] or "[]"),
+      "hoursLog": json.loads(row[8] or "[]"),
+      "updatedAt": row[9],
+  }
+
+
+def signin_or_merge_student_account(payload):
+  """Signs in or creates a student account and merges local guest hours/bookmarks into cloud storage."""
+  clean_email = (payload.get("email") or "").strip().lower()
+  if not clean_email or "@" not in clean_email:
+    raise ValueError("Please enter a valid student or personal email address.")
+
+  name = (payload.get("name") or clean_email.split("@")[0].replace(".", " ").title()).strip()
+  provider = (payload.get("provider") or "edu").strip()
+  track = (payload.get("track") or "Pre-Med (MD / DO)").strip()
+  grad_year = str(payload.get("gradYear") or "2028").strip()
+  pin = (payload.get("pin") or "").strip()
+
+  local_state = payload.get("localState") or {}
+  local_saved = local_state.get("savedIds") or []
+  local_pipeline = local_state.get("pipelineStatus") or {}
+  local_checklist = local_state.get("checklistDone") or []
+  local_hours = local_state.get("hoursLog") or []
+
+  now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+  conn = sqlite3.connect(DB_PATH)
+  cur = conn.cursor()
+  cur.execute(
+      "SELECT email, name, provider, track, grad_year, pin_hash, saved_ids, pipeline_status, checklist_done, hours_log FROM student_accounts WHERE email = ?",
+      (clean_email,),
+  )
+  existing = cur.fetchone()
+
+  if existing:
+    stored_pin = existing[5] or ""
+    if stored_pin and pin and stored_pin != pin:
+      conn.close()
+      raise ValueError("Incorrect PIN/password for this email account.")
+    final_name = payload.get("name") or existing[1] or name
+    final_provider = existing[2] or provider
+    final_track = payload.get("track") or existing[3] or track
+    final_grad = payload.get("gradYear") or existing[4] or grad_year
+    final_pin = pin or stored_pin
+
+    cloud_saved = json.loads(existing[6] or "[]")
+    cloud_pipeline = json.loads(existing[7] or "{}")
+    cloud_checklist = json.loads(existing[8] or "[]")
+    cloud_hours = json.loads(existing[9] or "[]")
+
+    merged_saved = list(dict.fromkeys(cloud_saved + local_saved))
+    merged_pipeline = {**local_pipeline, **cloud_pipeline}
+    merged_checklist = list(dict.fromkeys(cloud_checklist + local_checklist))
+    merged_hours = _merge_hours_logs(cloud_hours, local_hours)
+  else:
+    final_name = name
+    final_provider = provider
+    final_track = track
+    final_grad = grad_year
+    final_pin = pin
+    merged_saved = list(dict.fromkeys(local_saved))
+    merged_pipeline = dict(local_pipeline)
+    merged_checklist = list(dict.fromkeys(local_checklist))
+    merged_hours = _merge_hours_logs([], local_hours)
+
+  cur.execute(
+      """
+      INSERT OR REPLACE INTO student_accounts
+      (email, name, provider, track, grad_year, pin_hash, saved_ids, pipeline_status, checklist_done, hours_log, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      """,
+      (
+          clean_email,
+          final_name,
+          final_provider,
+          final_track,
+          final_grad,
+          final_pin,
+          json.dumps(merged_saved),
+          json.dumps(merged_pipeline),
+          json.dumps(merged_checklist),
+          json.dumps(merged_hours),
+          now_iso,
+      ),
+  )
+  conn.commit()
+  conn.close()
+
+  return {
+      "email": clean_email,
+      "name": final_name,
+      "provider": final_provider,
+      "track": final_track,
+      "gradYear": final_grad,
+      "savedIds": merged_saved,
+      "pipelineStatus": merged_pipeline,
+      "checklistDone": merged_checklist,
+      "hoursLog": merged_hours,
+      "updatedAt": now_iso,
+  }
+
+
+def sync_student_account(payload):
+  """Updates the cloud-synced hours, bookmarks, and pipeline for a signed-in student."""
+  clean_email = (payload.get("email") or "").strip().lower()
+  if not clean_email:
+    raise ValueError("Missing email for cloud sync")
+
+  now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+  conn = sqlite3.connect(DB_PATH)
+  cur = conn.cursor()
+  cur.execute("SELECT email FROM student_accounts WHERE email = ?", (clean_email,))
+  if not cur.fetchone():
+    conn.close()
+    return signin_or_merge_student_account({
+        "email": clean_email,
+        "name": payload.get("name"),
+        "provider": payload.get("provider", "edu"),
+        "track": payload.get("track", "Pre-Med (MD / DO)"),
+        "gradYear": payload.get("gradYear", "2028"),
+        "localState": payload,
+    })
+
+  saved_ids = payload.get("savedIds", [])
+  pipeline_status = payload.get("pipelineStatus", {})
+  checklist_done = payload.get("checklistDone", [])
+  hours_log = payload.get("hoursLog", [])
+
+  cur.execute(
+      """
+      UPDATE student_accounts
+      SET saved_ids = ?, pipeline_status = ?, checklist_done = ?, hours_log = ?, updated_at = ?
+      WHERE email = ?
+      """,
+      (
+          json.dumps(saved_ids),
+          json.dumps(pipeline_status),
+          json.dumps(checklist_done),
+          json.dumps(hours_log),
+          now_iso,
+          clean_email,
+      ),
+  )
+  conn.commit()
+  conn.close()
+  return {"status": "synced", "email": clean_email, "updatedAt": now_iso}
+
+
 class ScrubInHandler(BaseHTTPRequestHandler):
   """HTTP handler for ScrubIn WA API and static files."""
 
@@ -428,7 +626,29 @@ class ScrubInHandler(BaseHTTPRequestHandler):
     route = parsed.path
 
     if route == "/api/health":
-      self._send_json(200, {"status": "ok", "service": "scrubin-wa"})
+      self._send_json(200, {"status": "ok", "service": "scrubin-us"})
+      return
+
+    if route == "/api/auth/config":
+      self._send_json(
+          200,
+          {
+              "cloudSyncEnabled": True,
+              "supabaseUrl": os.environ.get("SUPABASE_URL", ""),
+              "supabaseAnonKey": os.environ.get("SUPABASE_ANON_KEY", ""),
+              "providers": ["google", "apple", "edu"],
+          },
+      )
+      return
+
+    if route == "/api/user/profile":
+      qs = urllib.parse.parse_qs(parsed.query)
+      email = (qs.get("email") or [""])[0]
+      acct = get_student_account(email)
+      if not acct:
+        self._send_json(404, {"error": "Account not found"})
+      else:
+        self._send_json(200, acct)
       return
 
     if route == "/api/sync-status":
@@ -449,6 +669,7 @@ class ScrubInHandler(BaseHTTPRequestHandler):
           ("README.md", "README.md"),
           ("deploy.sh", "deploy.sh"),
           ("render.yaml", "render.yaml"),
+          ("supabase_schema.sql", "supabase_schema.sql"),
           ("server.py", "server.py"),
           ("public/index.html", "index.html"),
           ("public/index.css", "index.css"),
@@ -510,6 +731,28 @@ class ScrubInHandler(BaseHTTPRequestHandler):
     if parsed.path == "/api/sync-now":
       meta = run_24h_sync()
       self._send_json(200, meta)
+      return
+
+    if parsed.path == "/api/auth/signin":
+      length = int(self.headers.get("Content-Length", "0"))
+      raw_body = self.rfile.read(length).decode("utf-8")
+      try:
+        payload = json.loads(raw_body)
+        acct = signin_or_merge_student_account(payload)
+        self._send_json(200, acct)
+      except Exception as exc:  # pylint: disable=broad-except
+        self._send_json(400, {"error": str(exc)})
+      return
+
+    if parsed.path == "/api/user/sync":
+      length = int(self.headers.get("Content-Length", "0"))
+      raw_body = self.rfile.read(length).decode("utf-8")
+      try:
+        payload = json.loads(raw_body)
+        res = sync_student_account(payload)
+        self._send_json(200, res)
+      except Exception as exc:  # pylint: disable=broad-except
+        self._send_json(400, {"error": str(exc)})
       return
 
     if parsed.path == "/api/opportunities":

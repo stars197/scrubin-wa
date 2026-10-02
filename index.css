@@ -1731,3 +1731,181 @@ body {
     padding: 1.15rem 1rem 1.5rem;
   }
 }
+
+/* ==========================================================================
+   Idea A: Cloud Auth, OAuth Buttons & Multi-Device Hours Sync UI
+   ========================================================================== */
+.auth-header-btn.signed-in {
+  background-color: var(--teal-soft);
+  border-color: hsla(176, 56%, 24%, 0.25);
+  color: var(--teal-primary);
+  font-weight: 700;
+}
+
+.cloud-account-banner {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.cloud-account-banner.signed-in {
+  background: linear-gradient(135deg, hsla(176, 56%, 24%, 0.06) 0%, hsla(40, 33%, 98%, 1) 100%);
+  border-color: hsla(176, 56%, 24%, 0.22);
+}
+
+.cloud-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex: 1;
+  min-width: 240px;
+}
+
+.cloud-avatar-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background-color: var(--teal-primary);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.92rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cloud-avatar-badge.guest {
+  background-color: var(--bg-subtle);
+  color: var(--teal-primary);
+  border: 1px solid var(--border-subtle);
+}
+
+.cloud-banner-title {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: var(--ink-primary);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.cloud-banner-sub {
+  font-size: 0.8rem;
+  color: var(--ink-secondary);
+  margin-top: 0.15rem;
+}
+
+.cloud-synced-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background-color: hsla(152, 58%, 32%, 0.12);
+  color: hsl(152, 62%, 25%);
+}
+
+.cloud-sync-mini-pill {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background-color: var(--bg-subtle);
+  color: var(--ink-secondary);
+}
+
+.cloud-sync-mini-pill.synced {
+  background-color: hsla(152, 58%, 32%, 0.12);
+  color: hsl(152, 62%, 25%);
+}
+
+.auth-modal-dialog {
+  max-width: 480px;
+}
+
+.oauth-buttons-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-bottom: 1rem;
+}
+
+.oauth-btn {
+  appearance: none;
+  width: 100%;
+  min-height: 42px;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background-color: #ffffff;
+  color: var(--ink-primary);
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  transition: background-color 120ms ease, border-color 120ms ease, transform 80ms ease;
+}
+
+.oauth-btn:hover {
+  background-color: var(--bg-subtle);
+}
+
+.oauth-btn-apple {
+  background-color: #14171a;
+  border-color: #14171a;
+  color: #ffffff;
+}
+
+.oauth-btn-apple:hover {
+  background-color: #272c30;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.9rem 0;
+  color: var(--ink-tertiary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background-color: var(--border-subtle);
+}
+
+.auth-merge-notice {
+  margin-top: 0.9rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--teal-soft);
+  color: var(--teal-primary);
+  font-size: 0.78rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
