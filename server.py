@@ -445,7 +445,6 @@ class ScrubInHandler(BaseHTTPRequestHandler):
       import zipfile
       buf = io.BytesIO()
       files_to_zip = [
-          (".gitignore", ".gitignore"),
           ("Dockerfile", "Dockerfile"),
           ("README.md", "README.md"),
           ("deploy.sh", "deploy.sh"),
@@ -455,10 +454,6 @@ class ScrubInHandler(BaseHTTPRequestHandler):
           ("public/index.css", "index.css"),
           ("public/app.js", "app.js"),
           ("public/assets/hero-illustration.jpg", "hero-illustration.jpg"),
-          ("public/index.html", "public/index.html"),
-          ("public/index.css", "public/index.css"),
-          ("public/app.js", "public/app.js"),
-          ("public/assets/hero-illustration.jpg", "public/assets/hero-illustration.jpg"),
       ]
       with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
         for src_rel, arc_rel in files_to_zip:
@@ -472,18 +467,23 @@ class ScrubInHandler(BaseHTTPRequestHandler):
           "Content-Disposition", 'attachment; filename="scrubin-wa.zip"'
       )
       self.send_header("Content-Length", str(len(zip_bytes)))
+      self.send_header("Cache-Control", "no-store")
       self.end_headers()
       self.wfile.write(zip_bytes)
       return
 
     if route == "/" or route == "":
       file_path = os.path.join(PUBLIC_DIR, "index.html")
+      if not os.path.isfile(file_path):
+        file_path = os.path.join(BASE_DIR, "index.html")
     else:
       safe_rel = os.path.normpath(route.lstrip("/"))
       if safe_rel.startswith(".."):
         self.send_error(403, "Forbidden")
         return
       file_path = os.path.join(PUBLIC_DIR, safe_rel)
+      if not os.path.isfile(file_path):
+        file_path = os.path.join(BASE_DIR, safe_rel)
       if not os.path.isfile(file_path):
         file_path = os.path.join(PUBLIC_DIR, "index.html")
 
@@ -501,6 +501,7 @@ class ScrubInHandler(BaseHTTPRequestHandler):
     self.send_response(200)
     self.send_header("Content-Type", mime_type)
     self.send_header("Content-Length", str(len(content)))
+    self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
     self.end_headers()
     self.wfile.write(content)
 
