@@ -672,6 +672,13 @@ body {
   border-bottom: 1px solid var(--border-subtle);
 }
 
+.toolbar-left-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
 .results-summary {
   font-size: 0.9rem;
   color: var(--ink-secondary);
@@ -680,6 +687,41 @@ body {
 .results-summary strong {
   color: var(--ink-primary);
   font-weight: 700;
+}
+
+.scope-segmented-control {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  padding: 2px;
+  gap: 2px;
+}
+
+.scope-pill {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--ink-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 0.28rem 0.68rem;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.scope-pill:hover {
+  color: var(--ink-primary);
+}
+
+.scope-pill.active {
+  background-color: var(--bg-elevated);
+  color: var(--accent-primary-text);
+  box-shadow: var(--shadow-xs);
 }
 
 .toolbar-controls {

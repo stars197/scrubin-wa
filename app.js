@@ -1,126 +1,219 @@
 /* ==========================================================================
-   MedPath WA — Washington State Clinical, Hospital & Research Directory
-   WA ZIP Coordinate Engine (980xx–994xx), 22 Deep WA Programs,
-   12 Live WA Opportunity Discovery Portals, Seasonal Calendar & Hours Logger
+   ScrubIn US — Local & National Clinical, Hospital & Research Directory
+   All-US ZIP & City Coordinate Engine (005xx–999xx), 50+ Verified Local &
+   National Programs, Official Discovery Portals, and AMCAS Hours Logger
    ========================================================================== */
 
 (function () {
   'use strict';
 
   // --------------------------------------------------------------------------
-  // 1. Washington State ZIP Code & City Geo-Coordinate Engine (980xx - 994xx)
+  // 1. All-US ZIP Code, City & State Geo-Coordinate Engine (All 50 States)
   // --------------------------------------------------------------------------
   const EXACT_ZIP_COORDS = {
-    // Seattle & King County
-    '98195': { lat: 47.6503, lon: -122.3077, label: 'Seattle (UW Medical Center / Montlake), WA' },
-    '98104': { lat: 47.6042, lon: -122.3244, label: 'Seattle (First Hill / Harborview / Swedish), WA' },
-    '98105': { lat: 47.6627, lon: -122.2816, label: 'Seattle (University District / Seattle Children’s), WA' },
-    '98109': { lat: 47.6275, lon: -122.3312, label: 'Seattle (South Lake Union / Fred Hutch), WA' },
-    '98101': { lat: 47.6101, lon: -122.3344, label: 'Seattle (Downtown / Virginia Mason / SCRI), WA' },
-    '98112': { lat: 47.6225, lon: -122.3125, label: 'Seattle (Capitol Hill / Country Doctor), WA' },
-    '98122': { lat: 47.6085, lon: -122.3090, label: 'Seattle (Cherry Hill / Central District), WA' },
-    '98108': { lat: 47.5390, lon: -122.3160, label: 'Seattle (South Park / Georgetown / Sea Mar), WA' },
-    '98118': { lat: 47.5512, lon: -122.2778, label: 'Seattle (Rainier Valley / Othello), WA' },
-    '98133': { lat: 47.7170, lon: -122.3410, label: 'North Seattle / UWMC Northwest / Shoreline, WA' },
-    '98188': { lat: 47.4430, lon: -122.2810, label: 'Tukwila / SeaTac, WA' },
-    // Eastside & South King County
-    '98004': { lat: 47.6155, lon: -122.1912, label: 'Bellevue (Overlake Medical Corridor), WA' },
-    '98034': { lat: 47.7155, lon: -122.1856, label: 'Kirkland (EvergreenHealth Totem Lake), WA' },
-    '98052': { lat: 47.6740, lon: -122.1215, label: 'Redmond, WA' },
-    '98057': { lat: 47.4680, lon: -122.2120, label: 'Renton (Valley Medical Center), WA' },
-    '98032': { lat: 47.3809, lon: -122.2348, label: 'Kent, WA' },
-    '98003': { lat: 47.3134, lon: -122.3356, label: 'Federal Way (St. Francis), WA' },
-    '98027': { lat: 47.5301, lon: -122.0326, label: 'Issaquah (Swedish Issaquah), WA' },
-    // North Sound (Snohomish, Skagit, Whatcom)
-    '98020': { lat: 47.8107, lon: -122.3774, label: 'Edmonds (Swedish Edmonds), WA' },
-    '98036': { lat: 47.8209, lon: -122.3151, label: 'Lynnwood (Lahai Health Corridor), WA' },
-    '98201': { lat: 47.9912, lon: -122.2054, label: 'Everett (Providence Regional Colby), WA' },
-    '98272': { lat: 47.8554, lon: -121.9710, label: 'Monroe (EvergreenHealth Monroe), WA' },
-    '98273': { lat: 48.4212, lon: -122.3340, label: 'Mount Vernon (Skagit Valley Hospital), WA' },
-    '98225': { lat: 48.7697, lon: -122.4859, label: 'Bellingham (PeaceHealth St. Joseph), WA' },
-    // South Sound & Peninsula (Pierce, Thurston, Kitsap)
-    '98405': { lat: 47.2587, lon: -122.4535, label: 'Tacoma (MultiCare Tacoma Gen / Mary Bridge / St. Joseph), WA' },
-    '98402': { lat: 47.2529, lon: -122.4443, label: 'Downtown Tacoma / UW Tacoma, WA' },
-    '98372': { lat: 47.1854, lon: -122.2929, label: 'Puyallup (Good Samaritan Hospital), WA' },
-    '98312': { lat: 47.5673, lon: -122.6329, label: 'Bremerton / Silverdale (St. Michael), WA' },
-    '98506': { lat: 47.0525, lon: -122.8740, label: 'Olympia (Providence St. Peter), WA' },
-    // Southwest WA
-    '98664': { lat: 45.6220, lon: -122.5802, label: 'Vancouver (PeaceHealth Southwest), WA' },
-    '98660': { lat: 45.6280, lon: -122.6739, label: 'Downtown Vancouver / Sea Mar Clark County, WA' },
-    // Central WA (Yakima, Wenatchee, Ellensburg)
-    '98801': { lat: 47.4235, lon: -120.3103, label: 'Wenatchee (Confluence Health), WA' },
-    '98902': { lat: 46.5965, lon: -120.5290, label: 'Yakima (Yakima Valley Farm Workers Clinic / PNWU), WA' },
-    '98926': { lat: 46.9965, lon: -120.5478, label: 'Ellensburg (Central Washington Univ), WA' },
-    // Eastern WA (Spokane, Pullman, Tri-Cities, Walla Walla)
-    '99204': { lat: 47.6480, lon: -117.4122, label: 'Spokane (Providence Sacred Heart / MultiCare Deaconess), WA' },
-    '99202': { lat: 47.6606, lon: -117.3895, label: 'Spokane (WSU Health Sciences / University District), WA' },
-    '99163': { lat: 46.7319, lon: -117.1542, label: 'Pullman (Washington State University), WA' },
-    '99352': { lat: 46.2804, lon: -119.2752, label: 'Richland / Tri-Cities (Kadlec Regional), WA' },
-    '99336': { lat: 46.2112, lon: -119.1372, label: 'Kennewick (Grace Free Clinic / Trios), WA' },
-    '99362': { lat: 46.0646, lon: -118.3430, label: 'Walla Walla (Providence St. Mary), WA' }
+    // Washington State & Pacific Northwest
+    '98195': { lat: 47.6503, lon: -122.3077, state: 'WA', label: 'Seattle (UW Medical Center), WA' },
+    '98104': { lat: 47.6042, lon: -122.3244, state: 'WA', label: 'Seattle (First Hill / Harborview), WA' },
+    '98105': { lat: 47.6627, lon: -122.2816, state: 'WA', label: 'Seattle (Seattle Children’s), WA' },
+    '98109': { lat: 47.6275, lon: -122.3312, state: 'WA', label: 'Seattle (Fred Hutch / SLU), WA' },
+    '98101': { lat: 47.6101, lon: -122.3344, state: 'WA', label: 'Seattle (Downtown / Virginia Mason), WA' },
+    '98112': { lat: 47.6225, lon: -122.3125, state: 'WA', label: 'Seattle (Capitol Hill), WA' },
+    '98122': { lat: 47.6085, lon: -122.3090, state: 'WA', label: 'Seattle (Cherry Hill), WA' },
+    '98108': { lat: 47.5390, lon: -122.3160, state: 'WA', label: 'Seattle (South Park / Sea Mar), WA' },
+    '98118': { lat: 47.5512, lon: -122.2778, state: 'WA', label: 'Seattle (Rainier Valley), WA' },
+    '98133': { lat: 47.7170, lon: -122.3410, state: 'WA', label: 'North Seattle / Shoreline, WA' },
+    '98188': { lat: 47.4430, lon: -122.2810, state: 'WA', label: 'Tukwila / SeaTac, WA' },
+    '98004': { lat: 47.6155, lon: -122.1912, state: 'WA', label: 'Bellevue (Overlake Medical), WA' },
+    '98034': { lat: 47.7155, lon: -122.1856, state: 'WA', label: 'Kirkland (EvergreenHealth), WA' },
+    '98052': { lat: 47.6740, lon: -122.1215, state: 'WA', label: 'Redmond, WA' },
+    '98057': { lat: 47.4680, lon: -122.2120, state: 'WA', label: 'Renton (Valley Medical Center), WA' },
+    '98032': { lat: 47.3809, lon: -122.2348, state: 'WA', label: 'Kent, WA' },
+    '98003': { lat: 47.3134, lon: -122.3356, state: 'WA', label: 'Federal Way, WA' },
+    '98027': { lat: 47.5301, lon: -122.0326, state: 'WA', label: 'Issaquah, WA' },
+    '98020': { lat: 47.8107, lon: -122.3774, state: 'WA', label: 'Edmonds, WA' },
+    '98036': { lat: 47.8209, lon: -122.3151, state: 'WA', label: 'Lynnwood (Lahai Health), WA' },
+    '98201': { lat: 47.9912, lon: -122.2054, state: 'WA', label: 'Everett (Providence Colby), WA' },
+    '98272': { lat: 47.8554, lon: -121.9710, state: 'WA', label: 'Monroe, WA' },
+    '98273': { lat: 48.4212, lon: -122.3340, state: 'WA', label: 'Mount Vernon, WA' },
+    '98225': { lat: 48.7697, lon: -122.4859, state: 'WA', label: 'Bellingham, WA' },
+    '98405': { lat: 47.2587, lon: -122.4535, state: 'WA', label: 'Tacoma (MultiCare / St. Joseph), WA' },
+    '98402': { lat: 47.2529, lon: -122.4443, state: 'WA', label: 'Downtown Tacoma, WA' },
+    '98372': { lat: 47.1854, lon: -122.2929, state: 'WA', label: 'Puyallup, WA' },
+    '98312': { lat: 47.5673, lon: -122.6329, state: 'WA', label: 'Bremerton / Silverdale, WA' },
+    '98506': { lat: 47.0525, lon: -122.8740, state: 'WA', label: 'Olympia, WA' },
+    '98664': { lat: 45.6220, lon: -122.5802, state: 'WA', label: 'Vancouver, WA' },
+    '98660': { lat: 45.6280, lon: -122.6739, state: 'WA', label: 'Downtown Vancouver, WA' },
+    '98801': { lat: 47.4235, lon: -120.3103, state: 'WA', label: 'Wenatchee, WA' },
+    '98902': { lat: 46.5965, lon: -120.5290, state: 'WA', label: 'Yakima, WA' },
+    '98926': { lat: 46.9965, lon: -120.5478, state: 'WA', label: 'Ellensburg, WA' },
+    '99204': { lat: 47.6480, lon: -117.4122, state: 'WA', label: 'Spokane (Sacred Heart / Deaconess), WA' },
+    '99202': { lat: 47.6606, lon: -117.3895, state: 'WA', label: 'Spokane (WSU Health Sciences), WA' },
+    '99163': { lat: 46.7319, lon: -117.1542, state: 'WA', label: 'Pullman (WSU), WA' },
+    '99352': { lat: 46.2804, lon: -119.2752, state: 'WA', label: 'Richland / Tri-Cities, WA' },
+    '99336': { lat: 46.2112, lon: -119.1372, state: 'WA', label: 'Kennewick, WA' },
+    '99362': { lat: 46.0646, lon: -118.3430, state: 'WA', label: 'Walla Walla, WA' },
+    '97239': { lat: 45.4990, lon: -122.6859, state: 'OR', label: 'Portland (OHSU Marquam Hill), OR' },
+    // California & West
+    '90095': { lat: 34.0664, lon: -118.4453, state: 'CA', label: 'Los Angeles (UCLA Westwood), CA' },
+    '90048': { lat: 34.0758, lon: -118.3802, state: 'CA', label: 'Los Angeles (Cedars-Sinai), CA' },
+    '94305': { lat: 37.4337, lon: -122.1750, state: 'CA', label: 'Palo Alto (Stanford Medicine), CA' },
+    '94143': { lat: 37.7631, lon: -122.4586, state: 'CA', label: 'San Francisco (UCSF Health), CA' },
+    '92103': { lat: 32.7549, lon: -117.1661, state: 'CA', label: 'San Diego (UC San Diego Health), CA' },
+    '80045': { lat: 39.7456, lon: -104.8378, state: 'CO', label: 'Aurora / Denver (UCHealth Anschutz), CO' },
+    '85054': { lat: 33.6592, lon: -111.9565, state: 'AZ', label: 'Phoenix / Scottsdale (Mayo Clinic AZ), AZ' },
+    '84132': { lat: 40.7712, lon: -111.8369, state: 'UT', label: 'Salt Lake City (U of Utah / Huntsman), UT' },
+    // Northeast & Mid-Atlantic
+    '02114': { lat: 42.3626, lon: -71.0686, state: 'MA', label: 'Boston (Mass General Hospital), MA' },
+    '02115': { lat: 42.3364, lon: -71.1062, state: 'MA', label: 'Boston (Longwood / Brigham / Children’s), MA' },
+    '02118': { lat: 42.3360, lon: -71.0725, state: 'MA', label: 'Boston (Boston Medical Center / BHCHP), MA' },
+    '10016': { lat: 40.7392, lon: -73.9754, state: 'NY', label: 'New York (NYU Langone / Bellevue), NY' },
+    '10029': { lat: 40.7900, lon: -73.9526, state: 'NY', label: 'New York (Mount Sinai Hospital), NY' },
+    '10032': { lat: 40.8407, lon: -73.9419, state: 'NY', label: 'New York (Columbia / NY-Presbyterian), NY' },
+    '19104': { lat: 39.9487, lon: -75.1939, state: 'PA', label: 'Philadelphia (CHOP & Penn Medicine), PA' },
+    '21287': { lat: 39.2975, lon: -76.5929, state: 'MD', label: 'Baltimore (Johns Hopkins Hospital), MD' },
+    '20892': { lat: 39.0019, lon: -77.1045, state: 'MD', label: 'Bethesda (NIH Clinical Center), MD' },
+    // South & Texas Medical Center
+    '77030': { lat: 29.7079, lon: -95.3982, state: 'TX', label: 'Houston (Texas Medical Center / MD Anderson), TX' },
+    '75390': { lat: 32.8136, lon: -96.8407, state: 'TX', label: 'Dallas (UT Southwestern / Parkland), TX' },
+    '27710': { lat: 36.0051, lon: -78.9371, state: 'NC', label: 'Durham (Duke University Hospital), NC' },
+    '30303': { lat: 33.7519, lon: -84.3822, state: 'GA', label: 'Atlanta (Grady Trauma & Emory), GA' },
+    '32224': { lat: 30.2638, lon: -81.4398, state: 'FL', label: 'Jacksonville (Mayo Clinic Florida), FL' },
+    '33136': { lat: 25.7901, lon: -80.2127, state: 'FL', label: 'Miami (Jackson Memorial / UHealth), FL' },
+    // Midwest
+    '60611': { lat: 41.8947, lon: -87.6214, state: 'IL', label: 'Chicago (Northwestern Memorial), IL' },
+    '60647': { lat: 41.9175, lon: -87.7018, state: 'IL', label: 'Chicago (CommunityHealth Free Clinic), IL' },
+    '55905': { lat: 44.0225, lon: -92.4669, state: 'MN', label: 'Rochester (Mayo Clinic Campus), MN' },
+    '44195': { lat: 41.5028, lon: -81.6212, state: 'OH', label: 'Cleveland (Cleveland Clinic Main Campus), OH' },
+    '48109': { lat: 42.2836, lon: -83.7294, state: 'MI', label: 'Ann Arbor (University of Michigan Health), MI' },
+    '63110': { lat: 38.6361, lon: -90.2644, state: 'MO', label: 'St. Louis (Barnes-Jewish / WashU), MO' }
   };
 
-  // Every 3-digit Washington State ZIP prefix (980 - 994)
+  // Every 3-digit WA ZIP prefix + 2-digit US ZIP prefix fallback across all 50 states
   const WA_PREFIX3_COORDS = {
-    '980': { lat: 47.6100, lon: -122.2000, label: 'King / Snohomish Suburbs (Eastside, Renton, Lynnwood), WA' },
-    '981': { lat: 47.6200, lon: -122.3200, label: 'Seattle Metro, WA' },
-    '982': { lat: 48.3500, lon: -122.3000, label: 'North Sound (Everett, Skagit, Bellingham), WA' },
-    '983': { lat: 47.3500, lon: -122.5500, label: 'Kitsap Peninsula & Pierce County (Puyallup / Bremerton), WA' },
-    '984': { lat: 47.2500, lon: -122.4500, label: 'Tacoma & Lakewood Metro, WA' },
-    '985': { lat: 47.0379, lon: -122.9007, label: 'Olympia & Thurston County, WA' },
-    '986': { lat: 45.6387, lon: -122.6615, label: 'Vancouver & Southwest Washington, WA' },
-    '988': { lat: 47.4235, lon: -120.3103, label: 'Wenatchee & North Central Washington, WA' },
-    '989': { lat: 46.6021, lon: -120.5059, label: 'Yakima & Kittitas Valley, WA' },
-    '990': { lat: 47.5500, lon: -117.5500, label: 'Spokane Metro Suburbs (Cheney / Liberty Lake), WA' },
-    '991': { lat: 46.7319, lon: -117.1542, label: 'Pullman / Palouse & Northeast WA, WA' },
-    '992': { lat: 47.6588, lon: -117.4260, label: 'Spokane Medical District, WA' },
-    '993': { lat: 46.2396, lon: -119.1006, label: 'Tri-Cities (Richland / Kennewick / Pasco) & Walla Walla, WA' },
-    '994': { lat: 46.4145, lon: -117.0477, label: 'Clarkston & Southeast Washington, WA' }
+    '980': { lat: 47.6100, lon: -122.2000, state: 'WA', label: 'King / Snohomish Suburbs (Eastside, Renton, Lynnwood), WA' },
+    '981': { lat: 47.6200, lon: -122.3200, state: 'WA', label: 'Seattle Metro, WA' },
+    '982': { lat: 48.3500, lon: -122.3000, state: 'WA', label: 'North Sound (Everett, Skagit, Bellingham), WA' },
+    '983': { lat: 47.3500, lon: -122.5500, state: 'WA', label: 'Kitsap Peninsula & Pierce County, WA' },
+    '984': { lat: 47.2500, lon: -122.4500, state: 'WA', label: 'Tacoma & Lakewood Metro, WA' },
+    '985': { lat: 47.0379, lon: -122.9007, state: 'WA', label: 'Olympia & Thurston County, WA' },
+    '986': { lat: 45.6387, lon: -122.6615, state: 'WA', label: 'Vancouver & Southwest Washington, WA' },
+    '988': { lat: 47.4235, lon: -120.3103, state: 'WA', label: 'Wenatchee & North Central Washington, WA' },
+    '989': { lat: 46.6021, lon: -120.5059, state: 'WA', label: 'Yakima & Kittitas Valley, WA' },
+    '990': { lat: 47.5500, lon: -117.5500, state: 'WA', label: 'Spokane Metro Suburbs, WA' },
+    '991': { lat: 46.7319, lon: -117.1542, state: 'WA', label: 'Pullman / Palouse & Northeast WA' },
+    '992': { lat: 47.6588, lon: -117.4260, state: 'WA', label: 'Spokane Medical District, WA' },
+    '993': { lat: 46.2396, lon: -119.1006, state: 'WA', label: 'Tri-Cities & Walla Walla, WA' },
+    '994': { lat: 46.4145, lon: -117.0477, state: 'WA', label: 'Clarkston & Southeast Washington, WA' }
+  };
+
+  const US_PREFIX2_COORDS = {
+    '01': { lat: 42.2626, lon: -71.8023, state: 'MA', label: 'Central / Western Massachusetts' },
+    '02': { lat: 42.3601, lon: -71.0589, state: 'MA', label: 'Greater Boston, MA / Rhode Island' },
+    '03': { lat: 42.9956, lon: -71.4548, state: 'NH', label: 'New Hampshire / Maine' },
+    '04': { lat: 43.6591, lon: -70.2568, state: 'ME', label: 'Maine' },
+    '05': { lat: 44.4759, lon: -73.2121, state: 'VT', label: 'Vermont' },
+    '06': { lat: 41.3083, lon: -72.9279, state: 'CT', label: 'Connecticut (New Haven / Hartford)' },
+    '07': { lat: 40.7357, lon: -74.1724, state: 'NJ', label: 'Northern New Jersey' },
+    '08': { lat: 40.2171, lon: -74.7429, state: 'NJ', label: 'Central / Southern New Jersey' },
+    '10': { lat: 40.7589, lon: -73.9851, state: 'NY', label: 'New York City / Westchester, NY' },
+    '11': { lat: 40.7282, lon: -73.7949, state: 'NY', label: 'Queens / Brooklyn / Long Island, NY' },
+    '12': { lat: 42.6526, lon: -73.7562, state: 'NY', label: 'Albany / Hudson Valley, NY' },
+    '13': { lat: 43.0481, lon: -76.1474, state: 'NY', label: 'Syracuse / Central NY' },
+    '14': { lat: 43.1566, lon: -77.6088, state: 'NY', label: 'Rochester / Buffalo, NY' },
+    '15': { lat: 40.4406, lon: -79.9959, state: 'PA', label: 'Pittsburgh & Western PA' },
+    '16': { lat: 41.2033, lon: -77.1945, state: 'PA', label: 'Central / Northwestern PA' },
+    '17': { lat: 40.2732, lon: -76.8867, state: 'PA', label: 'Harrisburg / Hershey, PA' },
+    '18': { lat: 40.6023, lon: -75.4714, state: 'PA', label: 'Lehigh Valley / Northeastern PA' },
+    '19': { lat: 39.9526, lon: -75.1652, state: 'PA', label: 'Philadelphia Metro, PA / Delaware' },
+    '20': { lat: 38.9072, lon: -77.0369, state: 'MD', label: 'Washington, DC & Bethesda, MD' },
+    '21': { lat: 39.2904, lon: -76.6122, state: 'MD', label: 'Baltimore Metro, MD' },
+    '22': { lat: 38.8048, lon: -77.0469, state: 'VA', label: 'Northern Virginia' },
+    '23': { lat: 37.5407, lon: -77.4360, state: 'VA', label: 'Richmond / Norfolk, VA' },
+    '24': { lat: 37.2710, lon: -79.9414, state: 'VA', label: 'Southwest Virginia' },
+    '25': { lat: 38.3498, lon: -81.6326, state: 'WV', label: 'West Virginia' },
+    '26': { lat: 39.6295, lon: -79.9559, state: 'WV', label: 'Morgantown / Northern WV' },
+    '27': { lat: 35.9940, lon: -78.8986, state: 'NC', label: 'Raleigh / Durham / Research Triangle, NC' },
+    '28': { lat: 35.2271, lon: -80.8431, state: 'NC', label: 'Charlotte & Western NC' },
+    '29': { lat: 32.7765, lon: -79.9311, state: 'SC', label: 'Charleston / Columbia, SC' },
+    '30': { lat: 33.7490, lon: -84.3880, state: 'GA', label: 'Atlanta Metro, GA' },
+    '31': { lat: 32.0809, lon: -81.0912, state: 'GA', label: 'Savannah / Southern GA' },
+    '32': { lat: 30.3322, lon: -81.6557, state: 'FL', label: 'Jacksonville / Orlando / Gainesville, FL' },
+    '33': { lat: 25.7617, lon: -80.1918, state: 'FL', label: 'Miami / South Florida & Tampa, FL' },
+    '34': { lat: 27.9506, lon: -82.4572, state: 'FL', label: 'Gulf Coast Florida' },
+    '35': { lat: 33.5186, lon: -86.8104, state: 'AL', label: 'Birmingham, AL' },
+    '37': { lat: 36.1627, lon: -86.7816, state: 'TN', label: 'Nashville / Knoxville, TN' },
+    '38': { lat: 35.1495, lon: -90.0490, state: 'TN', label: 'Memphis, TN / Mississippi' },
+    '40': { lat: 38.2527, lon: -85.7585, state: 'KY', label: 'Louisville / Lexington, KY' },
+    '43': { lat: 39.9612, lon: -82.9988, state: 'OH', label: 'Columbus, OH' },
+    '44': { lat: 41.4993, lon: -81.6944, state: 'OH', label: 'Cleveland / Northeast Ohio' },
+    '45': { lat: 39.1031, lon: -84.5120, state: 'OH', label: 'Cincinnati / Dayton, OH' },
+    '46': { lat: 39.7684, lon: -86.1581, state: 'IN', label: 'Indianapolis, IN' },
+    '48': { lat: 42.2808, lon: -83.7430, state: 'MI', label: 'Ann Arbor / Detroit Metro, MI' },
+    '49': { lat: 42.9634, lon: -85.6681, state: 'MI', label: 'Grand Rapids / Western MI' },
+    '50': { lat: 41.5868, lon: -93.6250, state: 'IA', label: 'Des Moines / Iowa City, IA' },
+    '53': { lat: 43.0389, lon: -87.9065, state: 'WI', label: 'Milwaukee / Madison, WI' },
+    '55': { lat: 44.5000, lon: -92.8000, state: 'MN', label: 'Minneapolis / St. Paul / Rochester, MN' },
+    '60': { lat: 41.8781, lon: -87.6298, state: 'IL', label: 'Chicago Metro, IL' },
+    '61': { lat: 40.1164, lon: -88.2434, state: 'IL', label: 'Central Illinois' },
+    '63': { lat: 38.6270, lon: -90.1994, state: 'MO', label: 'St. Louis Metro, MO' },
+    '64': { lat: 39.0997, lon: -94.5786, state: 'MO', label: 'Kansas City, MO' },
+    '70': { lat: 29.9511, lon: -90.0715, state: 'LA', label: 'New Orleans, LA' },
+    '73': { lat: 35.4676, lon: -97.5164, state: 'OK', label: 'Oklahoma City, OK' },
+    '75': { lat: 32.7767, lon: -96.7970, state: 'TX', label: 'Dallas / North Texas, TX' },
+    '76': { lat: 32.7555, lon: -97.3308, state: 'TX', label: 'Fort Worth / Central TX' },
+    '77': { lat: 29.7604, lon: -95.3698, state: 'TX', label: 'Houston & Texas Medical Center, TX' },
+    '78': { lat: 29.8000, lon: -98.0000, state: 'TX', label: 'Austin / San Antonio, TX' },
+    '80': { lat: 39.7392, lon: -104.9903, state: 'CO', label: 'Denver / Aurora Metro, CO' },
+    '83': { lat: 43.6150, lon: -116.2023, state: 'ID', label: 'Idaho' },
+    '84': { lat: 40.7608, lon: -111.8910, state: 'UT', label: 'Salt Lake City Metro, UT' },
+    '85': { lat: 33.4484, lon: -112.0740, state: 'AZ', label: 'Phoenix / Tucson Metro, AZ' },
+    '87': { lat: 35.0844, lon: -106.6504, state: 'NM', label: 'Albuquerque, NM' },
+    '89': { lat: 36.1699, lon: -115.1398, state: 'NV', label: 'Las Vegas / Reno, NV' },
+    '90': { lat: 34.0522, lon: -118.2437, state: 'CA', label: 'Los Angeles Metro, CA' },
+    '91': { lat: 34.1478, lon: -118.1445, state: 'CA', label: 'Pasadena / San Fernando Valley, CA' },
+    '92': { lat: 33.1500, lon: -117.3500, state: 'CA', label: 'San Diego / Orange County, CA' },
+    '93': { lat: 36.7378, lon: -119.7871, state: 'CA', label: 'Central Coast / Central Valley, CA' },
+    '94': { lat: 37.6000, lon: -122.3000, state: 'CA', label: 'San Francisco Bay Area / Palo Alto, CA' },
+    '95': { lat: 38.5816, lon: -121.4944, state: 'CA', label: 'Sacramento / San Jose, CA' },
+    '97': { lat: 45.5152, lon: -122.6784, state: 'OR', label: 'Portland / Oregon Corridor, OR' }
   };
 
   const CITY_ALIASES = {
-    'seattle': '98195',
-    'uw': '98195',
-    'montlake': '98195',
-    'first hill': '98104',
-    'harborview': '98104',
-    'south lake union': '98109',
-    'slu': '98109',
-    'capitol hill': '98112',
-    'bellevue': '98004',
-    'eastside': '98004',
-    'overlake': '98004',
-    'kirkland': '98034',
-    'evergreen': '98034',
-    'redmond': '98052',
-    'renton': '98057',
-    'kent': '98032',
-    'federal way': '98003',
-    'issaquah': '98027',
-    'edmonds': '98020',
-    'lynnwood': '98036',
-    'everett': '98201',
-    'monroe': '98272',
-    'mount vernon': '98273',
-    'bellingham': '98225',
-    'tacoma': '98405',
-    'puyallup': '98372',
-    'bremerton': '98312',
-    'silverdale': '98312',
-    'olympia': '98506',
-    'vancouver': '98664',
-    'wenatchee': '98801',
-    'yakima': '98902',
-    'ellensburg': '98926',
-    'spokane': '99204',
-    'pullman': '99163',
-    'wsu': '99202',
-    'richland': '99352',
-    'kennewick': '99336',
-    'pasco': '99336',
-    'tri-cities': '99352',
-    'tri cities': '99352',
-    'walla walla': '99362'
+    // Washington State
+    'seattle': '98195', 'uw': '98195', 'montlake': '98195', 'washington': '98195', 'wa': '98195',
+    'first hill': '98104', 'harborview': '98104', 'south lake union': '98109', 'slu': '98109',
+    'bellevue': '98004', 'eastside': '98004', 'overlake': '98004', 'kirkland': '98034',
+    'redmond': '98052', 'renton': '98057', 'kent': '98032', 'federal way': '98003',
+    'issaquah': '98027', 'edmonds': '98020', 'lynnwood': '98036', 'everett': '98201',
+    'bellingham': '98225', 'tacoma': '98405', 'puyallup': '98372', 'bremerton': '98312',
+    'olympia': '98506', 'vancouver': '98664', 'wenatchee': '98801', 'yakima': '98902',
+    'spokane': '99204', 'pullman': '99163', 'wsu': '99202', 'richland': '99352',
+    'kennewick': '99336', 'tri-cities': '99352', 'walla walla': '99362',
+    // Major US Cities & States
+    'portland': '97239', 'oregon': '97239', 'or': '97239', 'ohsu': '97239',
+    'los angeles': '90095', 'la': '90095', 'ucla': '90095', 'california': '90095', 'ca': '90095',
+    'cedars': '90048', 'beverly hills': '90048',
+    'stanford': '94305', 'palo alto': '94305', 'san jose': '94305',
+    'san francisco': '94143', 'sf': '94143', 'ucsf': '94143', 'bay area': '94143',
+    'san diego': '92103', 'ucsd': '92103',
+    'denver': '80045', 'aurora': '80045', 'colorado': '80045', 'co': '80045',
+    'phoenix': '85054', 'scottsdale': '85054', 'arizona': '85054', 'az': '85054',
+    'salt lake city': '84132', 'utah': '84132', 'ut': '84132',
+    'boston': '02114', 'mgh': '02114', 'massachusetts': '02114', 'ma': '02114', 'cambridge': '02114',
+    'new york': '10016', 'nyc': '10016', 'manhattan': '10016', 'ny': '10016', 'nyu': '10016', 'mount sinai': '10029',
+    'philadelphia': '19104', 'philly': '19104', 'pennsylvania': '19104', 'pa': '19104', 'chop': '19104',
+    'baltimore': '21287', 'johns hopkins': '21287', 'hopkins': '21287', 'maryland': '21287', 'md': '21287',
+    'bethesda': '20892', 'nih': '20892', 'dc': '20892', 'washington dc': '20892',
+    'houston': '77030', 'texas': '77030', 'tx': '77030', 'md anderson': '77030',
+    'dallas': '75390', 'utsw': '75390',
+    'durham': '27710', 'duke': '27710', 'raleigh': '27710', 'north carolina': '27710', 'nc': '27710',
+    'atlanta': '30303', 'grady': '30303', 'emory': '30303', 'georgia': '30303', 'ga': '30303',
+    'jacksonville': '32224', 'florida': '32224', 'fl': '32224', 'miami': '33136',
+    'chicago': '60611', 'illinois': '60611', 'il': '60611', 'northwestern': '60611',
+    'rochester': '55905', 'mayo': '55905', 'mayo clinic': '55905', 'minnesota': '55905', 'mn': '55905', 'minneapolis': '55905',
+    'cleveland': '44195', 'ohio': '44195', 'oh': '44195',
+    'ann arbor': '48109', 'michigan': '48109', 'mi': '48109', 'detroit': '48109',
+    'st louis': '63110', 'st. louis': '63110', 'missouri': '63110', 'mo': '63110'
   };
 
   function resolveSearchLocation(rawInput) {
@@ -149,13 +242,9 @@
       if (WA_PREFIX3_COORDS[p3]) {
         return { zip: digits, ...WA_PREFIX3_COORDS[p3] };
       }
-      // Fallback for out-of-state ZIPs so distance still calculates accurately
       const p2 = digits.slice(0, 2);
-      if (p2 === '97') {
-        return { zip: digits, lat: 45.5152, lon: -122.6784, label: 'Portland / Oregon Corridor' };
-      }
-      if (p2 === '83') {
-        return { zip: digits, lat: 47.6777, lon: -116.7805, label: 'Coeur d’Alene / North Idaho' };
+      if (US_PREFIX2_COORDS[p2]) {
+        return { zip: digits, ...US_PREFIX2_COORDS[p2] };
       }
     }
 
@@ -928,6 +1017,949 @@
       ],
       clearances: ['Background Check (16+ with parental consent)', '2-Hour Donor Safety Orientation'],
       contactInfo: 'volunteers@bloodworksnw.org | (800) 398-7888'
+    },
+
+    // ========================================================================
+    // NATIONAL & REMOTE US PROGRAMS (Accessible Anywhere in All 50 States)
+    // ========================================================================
+    {
+      id: 'us-001',
+      title: 'Remote Crisis Counselor & Behavioral Health De-Escalation Volunteer',
+      organization: 'Crisis Text Line (National Remote Program — All 50 States)',
+      facilityType: 'Free Clinic / FQHC',
+      waRegion: 'National & Remote (All 50 States)',
+      specialty: 'Primary Care & Underserved',
+      zipCode: 'Remote',
+      city: 'Nationwide / Remote (All 50 States)',
+      lat: null,
+      lon: null,
+      isRemote: true,
+      isNational: true,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: false,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '200 total hours (~1 year)',
+      studentLevels: ['Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Rolling Nationwide Cohorts (100% Remote Training Included)',
+      portalUrl: 'https://www.crisistextline.org/become-a-volunteer/',
+      insiderTip: 'Medical school admissions committees nationwide recognize Crisis Text Line for training students in active listening, suicide risk assessment, and collaborative safety planning. After 200 hours, Crisis Text Line provides an official verification letter.',
+      description: 'Complete a free 15-hour evidence-based crisis intervention training and support texters in acute emotional distress from anywhere in the US, supervised 24/7 by licensed mental health clinicians.',
+      duties: [
+        'Conduct structured suicide risk assessments and crisis de-escalation with texters nationwide',
+        'Collaborate in real time with licensed clinical supervisors during high-acuity situations',
+        'Connect individuals with local community mental health and social safety-net resources'
+      ],
+      clearances: ['Age 18+', 'US Background Check', '15-Hour Interactive Clinical Crisis Training'],
+      contactInfo: 'https://www.crisistextline.org/become-a-volunteer/'
+    },
+    {
+      id: 'us-002',
+      title: 'NIH Summer Internship Program in Biomedical Research (SIP)',
+      organization: 'National Institutes of Health (NIH) — Bethesda, MD & Nationwide Campuses',
+      facilityType: 'Academic / Research Lab',
+      waRegion: 'National & Remote (All 50 States)',
+      specialty: 'Translational & Clinical Research',
+      zipCode: '20892',
+      city: 'Bethesda, MD & Nationwide NIH Campuses (AZ, MA, MD, MT, NC)',
+      lat: 39.0019,
+      lon: -77.1045,
+      isRemote: false,
+      isNational: true,
+      directPatientContact: false,
+      starterFriendly: true,
+      shadowingIncluded: true,
+      lorEligible: true,
+      weeklyHours: 40,
+      minDuration: '8–10 weeks (Summer Paid Stipend)',
+      studentLevels: ['Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: false,
+      eveningAvailable: false,
+      status: 'Accepting Applications',
+      applicationCycle: 'Annual National Portal: Mid-November – February 19',
+      portalUrl: 'https://www.training.nih.gov/research-training/pb/sip/',
+      insiderTip: 'One of the most prestigious national pre-med research fellowships in the US. Submitting your application in the NIH OITE portal is only Step 1—you MUST email 10–15 NIH Principal Investigators directly from the NIH Intramural Database with your CV to get selected!',
+      description: 'Spend 8–10 paid weeks working full-time alongside Principal Investigators at the NIH Clinical Center (America’s largest hospital devoted entirely to clinical research) or regional NIH institutes.',
+      duties: [
+        'Conduct full-time translational, clinical, or bench biomedical research with an NIH mentor',
+        'Attend NIH Clinical Center Grand Rounds and shadow physician-scientists in Bethesda',
+        'Present a formal research poster at the NIH Summer Poster Day symposium'
+      ],
+      clearances: ['US Citizen or Permanent Resident', 'Age 18+', 'Federal Background Clearance'],
+      contactInfo: 'https://www.training.nih.gov/research-training/pb/sip/'
+    },
+    {
+      id: 'us-003',
+      title: 'Summer Health Professions Education Program (SHPEP) — Paid National Clinical Scholar',
+      organization: 'AAMC & Robert Wood Johnson Foundation (12 Universities Nationwide)',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'National & Remote (All 50 States)',
+      specialty: 'Primary Care & Underserved',
+      zipCode: 'National',
+      city: '12 National Sites (UW Seattle, UCLA, Columbia, Howard, UF, UTHealth, Iowa, etc.)',
+      lat: 38.9025,
+      lon: -77.0229,
+      isRemote: false,
+      isNational: true,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: true,
+      lorEligible: true,
+      weeklyHours: 40,
+      minDuration: '6 weeks (Summer — Free Housing + $1,000 Stipend)',
+      studentLevels: ['Undergrad / Pre-Med'],
+      weekendAvailable: false,
+      eveningAvailable: false,
+      status: 'Accepting Applications',
+      applicationCycle: 'Annual National Window: November 1 – February 5',
+      portalUrl: 'https://www.shpep.org/',
+      insiderTip: 'Specifically designed for college freshmen and sophomores nationwide (especially first-gen, rural, or underrepresented students). Includes a $1,000 stipend, free campus housing, travel assistance, clinical shadowing, and medical school admissions mentorship.',
+      description: 'Free national 6-week summer academic and clinical enrichment program hosted at 12 flagship medical centers across the United States (including UW, UCLA, Columbia, Rutgers, UAB, and UTHealth Houston).',
+      duties: [
+        'Rotate through structured clinical shadowing and medical simulation labs at a host medical school',
+        'Complete organic chemistry, physiology, and health policy coursework with medical faculty',
+        'Receive 1-on-1 pre-med advising and AMCAS application strategy mentorship'
+      ],
+      clearances: ['College Freshman or Sophomore (<60 credits)', 'Min 2.5 GPA', 'US Citizen / Perm Resident / DACA'],
+      contactInfo: 'shpep@aamc.org | https://www.shpep.org/'
+    },
+    {
+      id: 'us-004',
+      title: 'Blood Donor Ambassador & Biomedical Services Clinical Screener',
+      organization: 'American Red Cross Biomedical Services (Local Chapters in All 50 States)',
+      facilityType: 'EMS, Blood & Simulation',
+      waRegion: 'National & Remote (All 50 States)',
+      specialty: 'Primary Care & Underserved',
+      zipCode: 'National',
+      city: 'Nationwide Local Chapters (Enter Any US ZIP on Red Cross Portal)',
+      lat: 38.8965,
+      lon: -77.0417,
+      isRemote: false,
+      isNational: true,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: false,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '1 shift/month for 3–6 months',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Fast-Track Rolling Onboarding in Every US State (1–2 Weeks)',
+      portalUrl: 'https://www.redcross.org/volunteer/become-a-volunteer.html',
+      insiderTip: 'Wherever you live in the US, the American Red Cross can onboard you in under 14 days without waiting months for hospital titers—making it the fastest starter clinical volunteer role in America.',
+      description: 'Support phlebotomy teams and monitor blood donors for post-donation reactions at local Red Cross donor centers and university mobile blood drives in your city.',
+      duties: [
+        'Check in blood and platelet donors and review pre-donation health history readiness',
+        'Monitor donors in the recovery hospitality area for vasovagal symptoms (dizziness/syncope)',
+        'Alert phlebotomy and nursing staff immediately if a donor experiences an adverse reaction'
+      ],
+      clearances: ['Age 16+ (with parental consent) or 18+ Background Check', 'Online Donor Safety Module'],
+      contactInfo: 'https://www.redcross.org/volunteer/become-a-volunteer.html'
+    },
+    {
+      id: 'us-005',
+      title: 'National Hospice Bedside Companionship & Family Respite Volunteer',
+      organization: 'Gentiva / Heartland / Empatia & National Hospice Locator Network (All US)',
+      facilityType: 'Hospice & Palliative Care',
+      waRegion: 'National & Remote (All 50 States)',
+      specialty: 'Hospice & Geriatrics',
+      zipCode: 'National',
+      city: 'Nationwide Local Hospice Agencies (All 50 States)',
+      lat: 33.8839,
+      lon: -84.4655,
+      isRemote: false,
+      isNational: true,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: false,
+      lorEligible: true,
+      weeklyHours: 3,
+      minDuration: '6 months',
+      studentLevels: ['Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Year-Round Rolling Onboarding by Local ZIP Code',
+      portalUrl: 'https://www.gentivahs.com/about/volunteers/',
+      insiderTip: 'Under federal Medicare rules, every hospice agency in the United States is legally required to have 5% of all patient care hours delivered by volunteers. That means local hospices in every US ZIP code actively welcome pre-meds year-round!',
+      description: 'Provide 1-on-1 bedside companionship, emotional presence, life-story recording, and caregiver respite for terminally ill patients in your local community.',
+      duties: [
+        'Visit hospice patients at bedside to offer conversation, reading, comfort presence, and dignity support',
+        'Provide 2–4 hour respite breaks for exhausted family caregivers',
+        'Communicate patient comfort observations to the interdisciplinary hospice nurse and social worker'
+      ],
+      clearances: ['TB Screening', 'Background Check', 'Mandatory Medicare Hospice Volunteer Orientation'],
+      contactInfo: 'https://www.gentivahs.com/about/volunteers/'
+    },
+
+    // ========================================================================
+    // CALIFORNIA, OREGON & MOUNTAIN WEST FLAGSHIP PROGRAMS
+    // ========================================================================
+    {
+      id: 'us-006',
+      title: 'UCLA Health Care Extenders & Student Volunteer Clinical Rotation',
+      organization: 'UCLA Health — Ronald Reagan UCLA Medical Center & Santa Monica',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'California & West (CA / CO)',
+      specialty: 'Surgery, Inpatient & Simulation',
+      zipCode: '90095',
+      city: 'Los Angeles (Westwood / Santa Monica), CA',
+      lat: 34.0664,
+      lon: -118.4453,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: true,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '1 year (4 department rotations)',
+      studentLevels: ['Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Quarterly Cohort Orientations (Apply via UCLA Health Volunteer Portal)',
+      portalUrl: 'https://www.uclahealth.org/volunteer',
+      insiderTip: 'UCLA Health’s Care Extenders and Student Volunteer programs are among the West Coast’s best clinical pipelines, rotating students across inpatient nursing, Emergency Medicine, Pediatrics, and outpatient clinics.',
+      description: 'Rotate across clinical units at Ronald Reagan UCLA Medical Center (#1 ranked hospital in California/LA) and UCLA Santa Monica Medical Center, assisting nurses, physicians, and patients at bedside.',
+      duties: [
+        'Rotate through 4 distinct clinical departments over 4 quarters (4 hours/week per shift)',
+        'Assist nursing teams with bedside patient care, transport, vitals prep, and family navigation',
+        'Qualify for leadership coordinator tracks and letters of verification after completing required hours'
+      ],
+      clearances: ['2-Step TB / QuantiFERON', 'MMR/Varicella/Hep B Titers', 'Live Scan Background Check'],
+      contactInfo: 'https://www.uclahealth.org/volunteer'
+    },
+    {
+      id: 'us-007',
+      title: 'Academic Medical Center Inpatient, Emergency & Research Volunteer',
+      organization: 'Cedars-Sinai Medical Center (Los Angeles)',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'California & West (CA / CO)',
+      specialty: 'Emergency Medicine & Trauma',
+      zipCode: '90048',
+      city: 'Los Angeles (Beverly Grove), CA',
+      lat: 34.0758,
+      lon: -118.3802,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: false,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '6–12 months (100+ hours)',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Rolling Adult/College & High School Cohorts',
+      portalUrl: 'https://www.cedars-sinai.org/volunteer-services.html',
+      insiderTip: 'Cedars-Sinai offers both direct clinical floor placements (Emergency Department, Surgery Lounge, Mother-Baby, Samuel Oschin Cancer Center) AND a dedicated Research Intern Volunteer track with Cedars-Sinai PIs.',
+      description: 'Volunteer at one of the largest nonprofit academic medical centers in the Western United States across inpatient units, the Level-1 Trauma ED, and clinical research laboratories.',
+      duties: [
+        'Support bedside patient comfort, discharge transport, and nursing unit coordination',
+        'Assist families in surgical waiting rooms and the Samuel Oschin Comprehensive Cancer Institute',
+        'Option to apply for the Research Volunteer track supporting clinical trials and wet labs'
+      ],
+      clearances: ['Health Clearance & QuantiFERON TB', 'Immunization Titers', 'Background Check'],
+      contactInfo: 'https://www.cedars-sinai.org/volunteer-services.html'
+    },
+    {
+      id: 'us-008',
+      title: 'Stanford Health Care & Lucile Packard Children’s Hospital Volunteer',
+      organization: 'Stanford Medicine (Palo Alto / Bay Area)',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'California & West (CA / CO)',
+      specialty: 'Oncology & Hematology',
+      zipCode: '94305',
+      city: 'Palo Alto, CA',
+      lat: 37.4337,
+      lon: -122.1750,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: false,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '6 months (100 hours)',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Seasonal Cohort Windows (Check Stanford Health Care Volunteer Page)',
+      portalUrl: 'https://stanfordhealthcare.org/about-us/volunteer.html',
+      insiderTip: 'Bay Area pre-meds can also pair Stanford Hospital volunteering with Stanford’s Cardinal Free Clinics ( Arbor & Pacific Free Clinics), which recruit undergraduate volunteers every quarter for underserved patient navigation.',
+      description: 'Serve patients and care teams across Stanford Hospital, the Stanford Cancer Center, and outpatient specialty clinics in Palo Alto.',
+      duties: [
+        'Provide bedside patient hospitality, wayfinding, and comfort rounds on adult inpatient units',
+        'Support patients undergoing chemotherapy and radiation at the Stanford Cancer Center',
+        'Assist Emergency Department and surgical recovery teams with patient and family support'
+      ],
+      clearances: ['Medical & TB Clearance', 'Background Check', 'Mandatory Campus Orientation'],
+      contactInfo: 'VolunteerServices@stanfordhealthcare.org'
+    },
+    {
+      id: 'us-009',
+      title: 'UCSF Health Parnassus, Mission Bay & Benioff Children’s Volunteer',
+      organization: 'UCSF Health (University of California, San Francisco)',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'California & West (CA / CO)',
+      specialty: 'Pediatrics & Child Life',
+      zipCode: '94143',
+      city: 'San Francisco, CA',
+      lat: 37.7631,
+      lon: -122.4586,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: false,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '6 months (100+ hours)',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: false,
+      status: 'Accepting Applications',
+      applicationCycle: 'Rolling Admissions across Parnassus, Mount Zion & Mission Bay',
+      portalUrl: 'https://www.ucsfhealth.org/about/volunteering',
+      insiderTip: 'UCSF Mission Bay houses UCSF Benioff Children’s Hospital and the Bakar Precision Cancer Medicine Building—ideal for students interested in pediatrics, child life, or oncology.',
+      description: 'Support clinical care teams and patients across UCSF Health’s flagship San Francisco medical campuses (Parnassus Heights, Mission Bay, and Mount Zion).',
+      duties: [
+        'Engage pediatric patients in playroom and bedside activities at UCSF Benioff Children’s Hospital',
+        'Assist adult inpatient nursing units, infusion centers, and family resource lounges',
+        'Provide patient escort and wayfinding across UCSF specialty clinics'
+      ],
+      clearances: ['2-Step TB or QuantiFERON', 'Vaccine Titers', 'Background Check'],
+      contactInfo: 'volunteerservices@ucsf.edu | https://www.ucsfhealth.org/about/volunteering'
+    },
+    {
+      id: 'us-010',
+      title: 'OHSU Hospital, Doernbecher Children’s & Knight Cancer Research Volunteer',
+      organization: 'Oregon Health & Science University (OHSU)',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'Pacific Northwest (WA / OR)',
+      specialty: 'Emergency Medicine & Trauma',
+      zipCode: '97239',
+      city: 'Portland (Marquam Hill & South Waterfront), OR',
+      lat: 45.4990,
+      lon: -122.6859,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: false,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '6 months (100 hours)',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Rolling Applications for Hospital & Research Lab Tracks',
+      portalUrl: 'https://www.ohsu.edu/health/volunteer-ohsu-health',
+      insiderTip: 'OHSU is Oregon’s only academic health center and is also just 15 minutes across the Columbia River from Vancouver, WA (98660/98664)—making it a top choice for both Oregon and Southwest WA students!',
+      description: 'Volunteer at Oregon’s flagship Level-1 Trauma center, Doernbecher Children’s Hospital, or inside OHSU Knight Cancer Institute research laboratories.',
+      duties: [
+        'Support adult inpatient units, Doernbecher pediatric playrooms, or the Emergency Department',
+        'Assist patients and families navigating the Marquam Hill aerial tram and South Waterfront clinics',
+        'Separate research volunteer pathway available for students matched with an OHSU Principal Investigator'
+      ],
+      clearances: ['OHSU Occupational Health & TB Clearance', 'Background Check', 'Immunization Records'],
+      contactInfo: 'volunteering@ohsu.edu | https://www.ohsu.edu/health/volunteer-ohsu-health'
+    },
+    {
+      id: 'us-011',
+      title: 'Anschutz Medical Campus Pre-Health Clinical & Research Volunteer',
+      organization: 'UCHealth University of Colorado Hospital (Aurora / Denver)',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'California & West (CA / CO)',
+      specialty: 'Emergency Medicine & Trauma',
+      zipCode: '80045',
+      city: 'Aurora / Denver, CO',
+      lat: 39.7456,
+      lon: -104.8378,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: false,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '6 consecutive months (100 hours)',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Semester & Year-Round College Volunteer Tracks',
+      portalUrl: 'https://www.uchealth.org/give-to-uchealth/volunteer/',
+      insiderTip: 'Located on the CU Anschutz Medical Campus (home to the University of Colorado School of Medicine), UCHealth offers direct exposure to Rocky Mountain regional trauma, burn, and transplant care.',
+      description: 'Serve alongside clinical teams at the Rocky Mountain region’s premier academic medical center across the Emergency Department, ICU waiting lounges, Oncology, and inpatient nursing units.',
+      duties: [
+        'Assist Emergency Department and inpatient nursing staff with bedside patient comfort and restocking',
+        'Provide wheelchair discharge transport and wayfinding across the Anschutz Medical Campus',
+        'Build longitudinal clinical hours toward CU School of Medicine and national MD/DO programs'
+      ],
+      clearances: ['TB & Immunization Screening', 'Background Check', 'UCHealth Orientation'],
+      contactInfo: 'https://www.uchealth.org/give-to-uchealth/volunteer/'
+    },
+
+    // ========================================================================
+    // NORTHEAST & MID-ATLANTIC FLAGSHIP PROGRAMS (MA, NY, PA, MD)
+    // ========================================================================
+    {
+      id: 'us-012',
+      title: 'Massachusetts General Hospital (MGH) Clinical & Emergency Volunteer',
+      organization: 'Mass General Brigham — Massachusetts General Hospital (Boston)',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'Northeast & Mid-Atlantic (MA / NY / PA / MD)',
+      specialty: 'Emergency Medicine & Trauma',
+      zipCode: '02114',
+      city: 'Boston, MA',
+      lat: 42.3626,
+      lon: -71.0686,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: false,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '6 months (80–100 hours)',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Fall, Spring & Summer College Cohorts',
+      portalUrl: 'https://www.massgeneral.org/volunteer',
+      insiderTip: 'Harvard Medical School’s largest teaching hospital. College students who complete their initial 80 hours in Patient Escort or Ambassador roles get priority access to transfer into the MGH Emergency Department or Mass General Cancer Center.',
+      description: 'Gain frontline clinical experience at Mass General Hospital in downtown Boston across inpatient care units, the Mass General Cancer Center, Surgical Family Waiting, and Patient Escort.',
+      duties: [
+        'Transport discharged and admitted patients by wheelchair across MGH clinical buildings',
+        'Provide bedside comfort visits, reading materials, and mealtime assistance on inpatient units',
+        'Support oncology patients and families in the Mass General Cancer Center infusion suites'
+      ],
+      clearances: ['MGH Occupational Health Screening (2 TB tests + vaccine titers)', 'CORI Background Check'],
+      contactInfo: 'mghvolunteer@partners.org | https://www.massgeneral.org/volunteer'
+    },
+    {
+      id: 'us-013',
+      title: 'Brigham and Women’s Hospital Medical Career Exploration (MCEP) Volunteer',
+      organization: 'Brigham and Women’s Hospital — Longwood Medical Area (Boston)',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'Northeast & Mid-Atlantic (MA / NY / PA / MD)',
+      specialty: 'Surgery, Inpatient & Simulation',
+      zipCode: '02115',
+      city: 'Boston (Longwood Medical Area), MA',
+      lat: 42.3364,
+      lon: -71.1062,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: true,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '2–3 semesters (MCEP Track)',
+      studentLevels: ['Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Rolling Applications via Brigham Volunteer Services',
+      portalUrl: 'https://www.brighamandwomens.org/about-bwh/human-resources/volunteer-opportunities',
+      insiderTip: 'Brigham’s Medical Career Exploration Program (MCEP) is legendary among Boston pre-meds: after completing phased inpatient & patient transport hours, students unlock structured clinical seminars and observation opportunities.',
+      description: 'Participate in a structured multi-phase pre-health hospital volunteer program in Boston’s Longwood Medical Area.',
+      duties: [
+        'Complete foundational hours in Central Transport and inpatient unit support',
+        'Advance into specialized clinical units including NICU cuddlers, Emergency Dept, and Post-Anesthesia Care',
+        'Attend monthly career exploration seminars with Brigham physicians, PAs, and nurses'
+      ],
+      clearances: ['Occupational Health Titers & TB Test', 'MA CORI Background Check', 'Interview'],
+      contactInfo: 'bwhvc@partners.org | https://www.brighamandwomens.org/about-bwh/human-resources/volunteer-opportunities'
+    },
+    {
+      id: 'us-014',
+      title: 'PAVERS (Patient Advocate Volunteer in Emergency Room Services) & Hospital Volunteer',
+      organization: 'NYC Health + Hospitals / Bellevue & NYU Langone Corridor (NYC)',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'Northeast & Mid-Atlantic (MA / NY / PA / MD)',
+      specialty: 'Emergency Medicine & Trauma',
+      zipCode: '10016',
+      city: 'New York (Kips Bay / Manhattan), NY',
+      lat: 40.7392,
+      lon: -73.9754,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: true,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '6 months (150 hours)',
+      studentLevels: ['Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Fall, Spring & Summer Cohorts',
+      portalUrl: 'https://www.nychealthandhospitals.org/bellevue/volunteer/',
+      insiderTip: 'Bellevue is America’s oldest public hospital and the flagship safety-net Level-1 Trauma Center in Manhattan. Pre-meds volunteering in the Bellevue ED get unmatched exposure to underserved urban emergency care.',
+      description: 'Serve diverse NYC patients at Bellevue Hospital Center across the Level-1 Trauma Emergency Department, Psychiatric Emergency, Pediatrics, and Ambulatory Care clinics.',
+      duties: [
+        'Act as a bedside patient advocate in the Emergency Department, checking on comfort and communication needs',
+        'Assist nursing and social work teams with meal distribution, warm blankets, and family navigation',
+        'Support multilingual patient navigation in outpatient primary care clinics'
+      ],
+      clearances: ['NYC H+H Medical Clearance (Physical, Drug Screen, QuantiFERON, Titers)', 'Background Check'],
+      contactInfo: 'https://www.nychealthandhospitals.org/bellevue/volunteer/'
+    },
+    {
+      id: 'us-015',
+      title: 'Mount Sinai Hospital CARE Inpatient & Clinical Research Volunteer',
+      organization: 'The Mount Sinai Hospital & Icahn School of Medicine (New York)',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'Northeast & Mid-Atlantic (MA / NY / PA / MD)',
+      specialty: 'Oncology & Hematology',
+      zipCode: '10029',
+      city: 'New York (Upper East Side / Manhattan), NY',
+      lat: 40.7900,
+      lon: -73.9526,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: false,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '2 consecutive semesters (150 hours)',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Seasonal Application Windows (Spring, Summer, Fall)',
+      portalUrl: 'https://www.mountsinai.org/locations/mount-sinai/about/volunteer',
+      insiderTip: 'Mount Sinai’s CARE (Care and Respect for Elders) and Hospital Delirium Prevention volunteer tracks give pre-meds true 1-on-1 therapeutic interaction with hospitalized patients—not just clerical filing!',
+      description: 'Volunteer at Mount Sinai’s flagship Manhattan campus in clinical patient care (CARE geriatric support, Pediatrics, Emergency Dept, Dubin Breast Center) or faculty-mentored clinical research.',
+      duties: [
+        'Provide cognitive stimulation, mobility support, and bedside companionship for hospitalized patients',
+        'Assist Emergency Department and surgical recovery teams with patient flow and family updates',
+        'Optional Research Volunteer track for students matched with an Icahn School of Medicine PI'
+      ],
+      clearances: ['Mount Sinai Employee Health Clearance', '2-Step PPD or QuantiFERON', 'Drug & Background Screen'],
+      contactInfo: 'VolunteerDepartment@mountsinai.org | https://www.mountsinai.org/locations/mount-sinai/about/volunteer'
+    },
+    {
+      id: 'us-016',
+      title: 'Pediatric Inpatient, Child Life & Emergency Department Volunteer',
+      organization: 'Children’s Hospital of Philadelphia (CHOP)',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'Northeast & Mid-Atlantic (MA / NY / PA / MD)',
+      specialty: 'Pediatrics & Child Life',
+      zipCode: '19104',
+      city: 'Philadelphia (University City), PA',
+      lat: 39.9487,
+      lon: -75.1939,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: false,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '6–9 months (Academic Year or Summer)',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Academic Year & Summer Cohort Windows',
+      portalUrl: 'https://www.chop.edu/giving/get-involved/volunteer-chop',
+      insiderTip: 'Located right next to UPenn in University City, CHOP is consistently ranked among the top 2 pediatric hospitals in the US. Apply early when cohort windows open, as Child Life playroom shifts fill within days.',
+      description: 'Support hospitalized infants, children, and adolescents at CHOP’s Philadelphia campus through therapeutic play, bedside comfort, and family hospitality.',
+      duties: [
+        'Staff pediatric unit playrooms and lead bedside crafts, games, and reading with patients',
+        'Hold and soothe infants on inpatient floors under nursing and Child Life supervision',
+        'Guide families through outpatient specialty clinics and surgical waiting areas'
+      ],
+      clearances: ['PA Child Abuse History, State Police & FBI Fingerprinting', 'TB & Vaccine Titers'],
+      contactInfo: 'volunteers@chop.edu | https://www.chop.edu/giving/get-involved/volunteer-chop'
+    },
+    {
+      id: 'us-017',
+      title: 'Johns Hopkins Hospital Clinical, Pediatric & Oncology Volunteer',
+      organization: 'The Johns Hopkins Hospital & Sidney Kimmel Cancer Center (Baltimore)',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'Northeast & Mid-Atlantic (MA / NY / PA / MD)',
+      specialty: 'Oncology & Hematology',
+      zipCode: '21287',
+      city: 'Baltimore, MD',
+      lat: 39.2975,
+      lon: -76.5929,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: false,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '6 months (100 hours)',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Fall, Spring & Summer Onboarding Cohorts',
+      portalUrl: 'https://www.hopkinsmedicine.org/the-johns-hopkins-hospital/about/volunteer-services',
+      insiderTip: 'Johns Hopkins Volunteer Services offers dedicated placements across the Charlotte R. Bloomberg Children’s Center, Sidney Kimmel Comprehensive Cancer Center, and Adult Emergency Department.',
+      description: 'Serve patients and clinical teams at The Johns Hopkins Hospital in East Baltimore across pediatric, oncology, surgical, and emergency medicine units.',
+      duties: [
+        'Support pediatric patients and Child Life specialists in the Bloomberg Children’s Center',
+        'Assist oncology patients in infusion clinics and family resource centers',
+        'Provide patient escort, bedside comfort rounds, and nursing unit support'
+      ],
+      clearances: ['Occupational Health TB & Vaccine Clearance', 'Background Check', 'Hopkins Orientation'],
+      contactInfo: 'jhhvolt@jhmi.edu | https://www.hopkinsmedicine.org/the-johns-hopkins-hospital/about/volunteer-services'
+    },
+
+    // ========================================================================
+    // SOUTH & TEXAS MEDICAL CENTER FLAGSHIP PROGRAMS (TX, NC, GA, FL)
+    // ========================================================================
+    {
+      id: 'us-018',
+      title: 'MD Anderson Cancer Center Oncology Patient & Clinical Support Volunteer',
+      organization: 'UT MD Anderson Cancer Center — Texas Medical Center (Houston)',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'South & Texas (TX / NC / GA / FL)',
+      specialty: 'Oncology & Hematology',
+      zipCode: '77030',
+      city: 'Houston (Texas Medical Center), TX',
+      lat: 29.7079,
+      lon: -95.3982,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: false,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '6 months (College Year-Round or Summer Track)',
+      studentLevels: ['Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: false,
+      status: 'Accepting Applications',
+      applicationCycle: 'Rolling Year-Round & Competitive Summer College Program',
+      portalUrl: 'https://www.mdanderson.org/donors-volunteers/volunteer.html',
+      insiderTip: 'Located in the heart of the Texas Medical Center (the largest medical complex in the world), MD Anderson is the #1 ranked cancer hospital in the US. Pair this with Houston Methodist or Ben Taub for unmatched TMC exposure.',
+      description: 'Support cancer patients and care teams across outpatient chemotherapy infusion centers, radiation oncology lounges, and inpatient floors at MD Anderson in Houston.',
+      duties: [
+        'Provide warm blankets, refreshments, and compassionate conversation in ambulatory infusion suites',
+        'Help newly diagnosed patients and families navigate the Texas Medical Center campus',
+        'Assist clinical support staff in inpatient towers and surgical family waiting areas'
+      ],
+      clearances: ['TB Blood Test & Immunization Records', 'Background Check', 'On-Site Interview'],
+      contactInfo: 'https://www.mdanderson.org/donors-volunteers/volunteer.html'
+    },
+    {
+      id: 'us-019',
+      title: 'Texas Medical Center Inpatient, ICU & Emergency Care Volunteer',
+      organization: 'Houston Methodist Hospital (Texas Medical Center & Regional Campuses)',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'South & Texas (TX / NC / GA / FL)',
+      specialty: 'Surgery, Inpatient & Simulation',
+      zipCode: '77030',
+      city: 'Houston, TX',
+      lat: 29.7105,
+      lon: -95.3995,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: false,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '6 months (100 hours)',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Rolling Admissions Across 8 Greater Houston Campuses',
+      portalUrl: 'https://www.houstonmethodist.org/giving/volunteer/',
+      insiderTip: 'Houston Methodist has 8 hospitals across Greater Houston (TMC, Sugar Land, Woodlands, West, Willowbrook, Baytown, Clear Lake), making it easy for suburban Houston students to volunteer within 10 miles of home.',
+      description: 'Volunteer alongside nursing and surgical teams at the #1 ranked hospital in Texas across cardiovascular, orthopedics, neurology, and emergency care units.',
+      duties: [
+        'Support nursing staff with bedside patient rounding, call-light response, and unit restocking',
+        'Escort discharged patients and assist families in cardiovascular and neurosurgical waiting rooms',
+        'Participate in structured college student volunteer cohorts'
+      ],
+      clearances: ['Drug & Background Screening', 'TB & Flu/Vaccine Clearance', 'Volunteer Orientation'],
+      contactInfo: 'https://www.houstonmethodist.org/giving/volunteer/'
+    },
+    {
+      id: 'us-020',
+      title: 'Duke University Hospital College Student Clinical & Pediatric Volunteer',
+      organization: 'Duke Health — Duke University Hospital (Durham / Research Triangle)',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'South & Texas (TX / NC / GA / FL)',
+      specialty: 'Pediatrics & Child Life',
+      zipCode: '27710',
+      city: 'Durham, NC',
+      lat: 36.0051,
+      lon: -78.9371,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: false,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '2 semesters (Academic Year)',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Fall & Spring College Student Windows (Apply Early)',
+      portalUrl: 'https://www.dukehealth.org/volunteer-services',
+      insiderTip: 'Open to students from Duke, UNC Chapel Hill, NC State, NCCU, and across the Research Triangle! College application windows open briefly at the start of Fall and Spring semesters—bookmark the portal and submit on day one.',
+      description: 'Serve patients at Duke University Hospital, Duke Children’s Hospital, and the Duke Cancer Center in Durham, NC.',
+      duties: [
+        'Assist pediatric playrooms and inpatient units at Duke Children’s Hospital',
+        'Support oncology patients and families at the Duke Cancer Center',
+        'Provide bedside comfort visits and navigation across Duke University Hospital'
+      ],
+      clearances: ['Duke Employee Occupational Health Clearance (TB + Titers)', 'Background Check'],
+      contactInfo: 'dukehospitalvolunteers@dm.duke.edu | https://www.dukehealth.org/volunteer-services'
+    },
+    {
+      id: 'us-021',
+      title: 'Level-1 Trauma Center, Burn Unit & Safety-Net Emergency Volunteer',
+      organization: 'Grady Memorial Hospital — Grady Health System (Atlanta)',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'South & Texas (TX / NC / GA / FL)',
+      specialty: 'Emergency Medicine & Trauma',
+      zipCode: '30303',
+      city: 'Atlanta, GA',
+      lat: 33.7519,
+      lon: -84.3822,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: false,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '6 months (100 hours)',
+      studentLevels: ['Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Semester & Rolling Onboarding for College/Adult Volunteers',
+      portalUrl: 'https://www.gradyhealth.org/volunteer/',
+      insiderTip: 'Grady is Atlanta’s legendary public safety-net hospital and primary clinical training site for Emory University School of Medicine and Morehouse School of Medicine. Ideal for pre-meds passionate about health equity and trauma care.',
+      description: 'Support frontline clinical staff and underserved patients at one of the busiest Level-1 Trauma and Burn Centers in the American South.',
+      duties: [
+        'Assist Emergency Department, Trauma Center, and Burn Unit staff with patient comfort and family updates',
+        'Support outpatient primary care clinics and patient discharge transport',
+        'Work alongside Emory and Morehouse medical trainees in a high-volume safety-net setting'
+      ],
+      clearances: ['Age 18+', 'TB Screening & Immunization Records', 'Criminal Background Check'],
+      contactInfo: 'volunteers@gmh.edu | https://www.gradyhealth.org/volunteer/'
+    },
+    {
+      id: 'us-022',
+      title: 'Mayo Clinic in Florida College & Hospital Clinical Volunteer',
+      organization: 'Mayo Clinic Hospital (Jacksonville, FL)',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'South & Texas (TX / NC / GA / FL)',
+      specialty: 'Surgery, Inpatient & Simulation',
+      zipCode: '32224',
+      city: 'Jacksonville, FL',
+      lat: 30.2638,
+      lon: -81.4398,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: false,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '1 semester or 6 months',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: false,
+      status: 'Accepting Applications',
+      applicationCycle: 'Fall, Spring & Summer College Volunteer Tracks',
+      portalUrl: 'https://www.mayoclinic.org/about-mayo-clinic/volunteers/florida',
+      insiderTip: 'Mayo Clinic’s Jacksonville campus has a dedicated College Volunteer Program for undergraduates and gap-year students, offering structured 4-hour weekly shifts in inpatient nursing, surgical services, and oncology.',
+      description: 'Experience Mayo Clinic’s model of integrated patient care across hospital inpatient floors, surgical waiting lounges, and specialty clinics in Jacksonville, Florida.',
+      duties: [
+        'Support nursing units with bedside patient hospitality, supply readiness, and discharge escorts',
+        'Assist patients and families in surgical recovery and transplant center clinics',
+        'Complete a structured semester shift schedule recognized by medical schools nationwide'
+      ],
+      clearances: ['Mayo Clinic Occupational Health & QuantiFERON TB', 'Background Check', 'Interview'],
+      contactInfo: 'https://www.mayoclinic.org/about-mayo-clinic/volunteers/florida'
+    },
+
+    // ========================================================================
+    // MIDWEST FLAGSHIP PROGRAMS (MN, IL, OH, MI)
+    // ========================================================================
+    {
+      id: 'us-023',
+      title: 'Mayo Clinic College & Hospital Clinical Volunteer (Saint Marys & Methodist)',
+      organization: 'Mayo Clinic (Rochester, MN — Flagship National Campus)',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'Midwest (IL / MN / OH / MI)',
+      specialty: 'Surgery, Inpatient & Simulation',
+      zipCode: '55905',
+      city: 'Rochester, MN',
+      lat: 44.0225,
+      lon: -92.4669,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: false,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '1 semester or 6 months',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Rolling & Semester-Based College Cohorts',
+      portalUrl: 'https://www.mayoclinic.org/about-mayo-clinic/volunteers/minnesota',
+      insiderTip: 'World-renowned #1 ranked hospital in the United States. Mayo Clinic Rochester places over 1,000 volunteers across Saint Marys Campus, Methodist Campus, and Mayo Eugenio Litta Children’s Hospital.',
+      description: 'Serve patients traveling from all 50 states and 130 countries at Mayo Clinic’s flagship Rochester, Minnesota hospitals and outpatient specialty clinics.',
+      duties: [
+        'Assist inpatient nursing units, surgical waiting lounges, and pediatric playrooms at Saint Marys and Methodist',
+        'Escort patients between diagnostic imaging, oncology infusion, and outpatient consults',
+        'Embody Mayo Clinic’s primary value ("The needs of the patient come first") in direct patient interactions'
+      ],
+      clearances: ['TB Blood Test & Vaccine Records', 'MN Background Study', 'In-Person Orientation'],
+      contactInfo: 'mcrvolunteer@mayo.edu | https://www.mayoclinic.org/about-mayo-clinic/volunteers/minnesota'
+    },
+    {
+      id: 'us-024',
+      title: 'Northwestern Memorial Hospital Inpatient & Emergency Department Volunteer',
+      organization: 'Northwestern Medicine (Streeterville / Downtown Chicago)',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'Midwest (IL / MN / OH / MI)',
+      specialty: 'Emergency Medicine & Trauma',
+      zipCode: '60611',
+      city: 'Chicago, IL',
+      lat: 41.8947,
+      lon: -87.6214,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: false,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '6 months (100+ hours)',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Rolling Admissions Across Chicago & Suburban NM Campuses',
+      portalUrl: 'https://www.nm.org/about-us/volunteer',
+      insiderTip: 'Primary teaching hospital for Northwestern University Feinberg School of Medicine. Pre-meds in Chicago can volunteer at the downtown Streeterville flagship (60611) or regional Northwestern Medicine hospitals in Evanston, Lake Forest, and Central DuPage.',
+      description: 'Support clinical care teams at Illinois’ #1 ranked hospital across the Emergency Department, Prentice Women’s Hospital, Lurie Cancer Center, and inpatient nursing floors.',
+      duties: [
+        'Provide bedside comfort rounds, patient transport, and nursing unit assistance',
+        'Support patients and families in the Robert H. Lurie Comprehensive Cancer Center',
+        'Assist clinical staff in the Emergency Department and surgical recovery lounges'
+      ],
+      clearances: ['Employee Health QuantiFERON TB & Titers', 'Background Check', 'Orientation'],
+      contactInfo: 'https://www.nm.org/about-us/volunteer'
+    },
+    {
+      id: 'us-025',
+      title: 'Free Clinic Triage, Medical Interpreter & Lab Intake Volunteer',
+      organization: 'CommunityHealth Chicago (Largest Volunteer-Based Free Clinic in the US)',
+      facilityType: 'Free Clinic / FQHC',
+      waRegion: 'Midwest (IL / MN / OH / MI)',
+      specialty: 'Primary Care & Underserved',
+      zipCode: '60647',
+      city: 'Chicago (West Town / Logan Square), IL',
+      lat: 41.9175,
+      lon: -87.7018,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: true,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '6–12 months',
+      studentLevels: ['Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Rolling Volunteer & Medical Interpreter Cohorts',
+      portalUrl: 'https://communityhealth.org/volunteer/',
+      insiderTip: 'CommunityHealth is the largest volunteer-based free medical facility in the United States! Pre-meds work directly alongside attending physicians and medical students from UChicago, Northwestern, Rush, and UIC.',
+      description: 'Deliver free primary care, chronic disease management, dental, and pharmacy services to uninsured adults in Chicago alongside volunteer physicians.',
+      duties: [
+        'Serve as a clinic intake specialist, Spanish/Polish medical interpreter, or phlebotomy/lab aide',
+        'Room patients and coordinate chart flow for volunteer attending physicians and residents',
+        'Assist patients with free onsite medication dispensing and health education classes'
+      ],
+      clearances: ['Age 18+', 'TB Test & Vaccine Records', 'Clinic Training Workshop'],
+      contactInfo: 'volunteer@communityhealth.org | https://communityhealth.org/volunteer/'
+    },
+    {
+      id: 'us-026',
+      title: 'Cleveland Clinic Main Campus College & Patient Support Volunteer',
+      organization: 'Cleveland Clinic (Main Campus & Northeast Ohio Hospitals)',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'Midwest (IL / MN / OH / MI)',
+      specialty: 'Surgery, Inpatient & Simulation',
+      zipCode: '44195',
+      city: 'Cleveland, OH',
+      lat: 41.5028,
+      lon: -81.6212,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: false,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '6 months (75–100 hours)',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Year-Round Rolling Onboarding',
+      portalUrl: 'https://my.clevelandclinic.org/about/community/volunteer-services',
+      insiderTip: 'Home to the #1 Heart & Vascular hospital in the world and Cleveland Clinic Lerner College of Medicine. Volunteers can serve in the Sydell and Arnold Miller Family Heart, Vascular & Thoracic Institute or Taussig Cancer Center.',
+      description: 'Support patients, nurses, and families at Cleveland Clinic’s Main Campus across cardiac, oncology, pediatric, and inpatient units.',
+      duties: [
+        'Round on inpatient nursing floors to offer comfort items, conversation, and non-clinical assistance',
+        'Escort patients and families across the Miller Heart Pavilion and Taussig Cancer Institute',
+        'Support hospitality and discharge transport teams'
+      ],
+      clearances: ['TB Blood Test', 'Flu & Immunization Records', 'BCI/FBI Background Check'],
+      contactInfo: 'volunteerservices@ccf.org | https://my.clevelandclinic.org/about/community/volunteer-services'
+    },
+    {
+      id: 'us-027',
+      title: 'Michigan Medicine Adult Hospital & C.S. Mott Children’s Volunteer',
+      organization: 'University of Michigan Health — Michigan Medicine (Ann Arbor)',
+      facilityType: 'Hospital / Medical Center',
+      waRegion: 'Midwest (IL / MN / OH / MI)',
+      specialty: 'Pediatrics & Child Life',
+      zipCode: '48109',
+      city: 'Ann Arbor, MI',
+      lat: 42.2836,
+      lon: -83.7294,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: false,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '2 consecutive terms (or 1 year)',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Fall, Winter & Spring/Summer Term Onboarding',
+      portalUrl: 'https://www.uofmhealth.org/about-umhs/volunteer-services',
+      insiderTip: 'Michigan Medicine places over 1,200 college and community volunteers across University Hospital, C.S. Mott Children’s Hospital, Von Voigtlander Women’s Hospital, and the Rogel Cancer Center.',
+      description: 'Engage in hands-on patient support, pediatric Child Life playrooms, and inpatient delirium-prevention rounding (Hospital Elder Life Program) at University of Michigan Health.',
+      duties: [
+        'Support pediatric playrooms and bedside comfort at C.S. Mott Children’s Hospital',
+        'Participate in the Hospital Elder Life Program (HELP) assisting older adult inpatients with mobility and orientation',
+        'Assist Emergency Department, surgical family waiting, and Rogel Cancer Center clinics'
+      ],
+      clearances: ['Occupational Health Immunization & TB Clearance', 'Background Check', 'Unit Training'],
+      contactInfo: 'https://www.uofmhealth.org/about-umhs/volunteer-services'
     }
   ];
 
@@ -1235,7 +2267,8 @@ Warm regards,
     activeTab: 'explore',
     zipInput: '',
     resolvedLocation: null,
-    radius: '25',
+    radius: 'all',
+    scopeFilter: 'all',
     facilityType: 'all',
     keyword: '',
     selectedRegions: new Set(),
@@ -1252,8 +2285,8 @@ Warm regards,
     activePreset: null,
     activeDiscoveryCat: 'all',
     activeTemplate: 'research',
-    savedIds: new Set(JSON.parse(localStorage.getItem('medpath_wa_saved_ids') || '["wa-001","wa-013"]')),
-    pipelineStatus: JSON.parse(localStorage.getItem('medpath_wa_pipeline_status') || '{"wa-001":"Preparing Clearances","wa-013":"Saved"}'),
+    savedIds: new Set(JSON.parse(localStorage.getItem('medpath_wa_saved_ids') || '["wa-001","us-001","us-002"]')),
+    pipelineStatus: JSON.parse(localStorage.getItem('medpath_wa_pipeline_status') || '{"wa-001":"Preparing Clearances","us-001":"Saved","us-002":"Saved"}'),
     checklistDone: new Set(JSON.parse(localStorage.getItem('medpath_wa_checklist') || '["chk-immunizations","chk-watch"]')),
     hoursLog: JSON.parse(localStorage.getItem('medpath_wa_hours_log') || JSON.stringify([
       {
@@ -1274,6 +2307,32 @@ Warm regards,
       }
     ]))
   };
+
+  function isNationalOrRemote(opp) {
+    return Boolean(
+      opp.isRemote ||
+      opp.isNational ||
+      opp.waRegion === 'National & Remote (All 50 States)'
+    );
+  }
+
+  function getOpportunityUsRegion(opp) {
+    if (isNationalOrRemote(opp)) {
+      return 'National & Remote (All 50 States)';
+    }
+    const r = opp.waRegion || '';
+    const knownUsRegions = new Set([
+      'National & Remote (All 50 States)',
+      'Pacific Northwest (WA / OR)',
+      'California & West (CA / CO)',
+      'Northeast & Mid-Atlantic (MA / NY / PA / MD)',
+      'South & Texas (TX / NC / GA / FL)',
+      'Midwest (IL / MN / OH / MI)'
+    ]);
+    if (knownUsRegions.has(r)) return r;
+    // Map legacy Washington regional labels into Pacific Northwest
+    return 'Pacific Northwest (WA / OR)';
+  }
 
   // --------------------------------------------------------------------------
   // 7. Initialization & 24-Hour Live Sync API Load
@@ -1347,14 +2406,14 @@ Warm regards,
           const trialCount = status.liveNihStudiesCount || status.nihLiveTrialsCount || 0;
           syncLabel.textContent = `24h Sync • +${trialCount} NIH`;
           showToast(
-            `24h Sync complete: Verified WA links + pulled ${trialCount} active UW/Fred Hutch NIH studies!`
+            `24h Sync complete: Verified US & local links + pulled ${trialCount} active NIH studies!`
           );
         } else {
           syncLabel.textContent = '24h Sync';
         }
       } catch (_err) {
         syncLabel.textContent = '24h Sync';
-        showToast('Verified local Washington directory links');
+        showToast('Verified local & national US directory links');
       } finally {
         syncBtn.disabled = false;
       }
@@ -1369,34 +2428,53 @@ Warm regards,
 
     const enriched = state.opportunities.map((opp) => {
       let distanceMiles = null;
-      if (loc && !opp.isRemote && typeof opp.lat === 'number' && typeof opp.lon === 'number') {
+      if (loc && !isNationalOrRemote(opp) && typeof opp.lat === 'number' && typeof opp.lon === 'number') {
         distanceMiles = calculateDistanceMiles(loc.lat, loc.lon, opp.lat, opp.lon);
       }
       return { ...opp, distanceMiles };
     });
 
     const filtered = enriched.filter((opp) => {
+      const natRemote = isNationalOrRemote(opp);
+      const usRegion = getOpportunityUsRegion(opp);
+
+      // 0. Scope Segmented Pill ('all' | 'local' | 'national')
+      if (state.scopeFilter === 'national') {
+        if (!natRemote) return false;
+      } else if (state.scopeFilter === 'local') {
+        if (natRemote) return false;
+        if (loc && state.radius === 'all') {
+          if (opp.distanceMiles === null || opp.distanceMiles > 100) return false;
+        }
+      }
+
       // 1. Radius / Location filter
       if (state.radius === 'remote') {
-        if (!opp.isRemote) return false;
+        if (!natRemote) return false;
       } else if (loc && state.radius !== 'all') {
         const maxMiles = parseFloat(state.radius);
-        if (!opp.isRemote) {
-          if (opp.distanceMiles === null || opp.distanceMiles > maxMiles) {
-            return false;
-          }
+        if (natRemote) {
+          return false;
+        }
+        if (opp.distanceMiles === null || opp.distanceMiles > maxMiles) {
+          return false;
         }
       } else if (state.zipInput.trim() && !loc) {
         const q = state.zipInput.trim().toLowerCase();
         const matchZipOrCity =
           opp.zipCode.toLowerCase().includes(q) ||
           opp.city.toLowerCase().includes(q) ||
-          (opp.waRegion || '').toLowerCase().includes(q);
-        if (!matchZipOrCity && !opp.isRemote) return false;
+          (opp.waRegion || '').toLowerCase().includes(q) ||
+          usRegion.toLowerCase().includes(q);
+        if (!matchZipOrCity && !natRemote) return false;
       }
 
-      // 2. WA Region checkboxes
-      if (state.selectedRegions.size > 0 && !state.selectedRegions.has(opp.waRegion)) {
+      // 2. US Region checkboxes
+      if (
+        state.selectedRegions.size > 0 &&
+        !state.selectedRegions.has(usRegion) &&
+        !state.selectedRegions.has(opp.waRegion)
+      ) {
         return false;
       }
 
@@ -1413,6 +2491,7 @@ Warm regards,
           opp.organization,
           opp.facilityType,
           opp.waRegion,
+          usRegion,
           opp.specialty,
           opp.city,
           opp.zipCode,
@@ -1451,8 +2530,8 @@ Warm regards,
 
     filtered.sort((a, b) => {
       if (state.sortBy === 'distance' || (state.sortBy === 'relevance' && loc)) {
-        const da = a.distanceMiles !== null ? a.distanceMiles : (a.isRemote ? 9998 : 9999);
-        const db = b.distanceMiles !== null ? b.distanceMiles : (b.isRemote ? 9998 : 9999);
+        const da = a.distanceMiles !== null ? a.distanceMiles : (isNationalOrRemote(a) ? 9998 : 9999);
+        const db = b.distanceMiles !== null ? b.distanceMiles : (isNationalOrRemote(b) ? 9998 : 9999);
         if (da !== db) return da - db;
       }
       if (state.sortBy === 'hours_asc') {
@@ -1488,22 +2567,26 @@ Warm regards,
     const readout = document.getElementById('zip-status-readout');
     const detectedCity = document.getElementById('zip-detected-city');
 
-    if (state.radius === 'remote') {
-      detectedCity.textContent = 'Remote / Telehealth';
-      readout.textContent = 'Filtering for Remote / Telehealth programs';
+    if (state.radius === 'remote' || state.scopeFilter === 'national') {
+      detectedCity.textContent = 'National / Remote';
+      if (readout) readout.textContent = 'Filtering for National & Remote programs';
       return;
     }
 
     if (state.resolvedLocation) {
       detectedCity.textContent = state.resolvedLocation.label.split(',')[0];
-      const radText = state.radius === 'all' ? 'All WA distances' : `Within ${state.radius} miles`;
-      readout.textContent = `Centered on WA ZIP ${state.resolvedLocation.zip} (${state.resolvedLocation.label}) • ${radText}`;
+      const radText = state.radius === 'all' ? 'All US distances' : `Within ${state.radius} miles`;
+      if (readout) {
+        readout.textContent = `Centered on ${state.resolvedLocation.zip} (${state.resolvedLocation.label}) • ${radText}`;
+      }
     } else if (state.zipInput.trim()) {
       detectedCity.textContent = '';
-      readout.textContent = `Filtering by WA location text: "${state.zipInput.trim()}"`;
+      if (readout) readout.textContent = `Filtering by US location: "${state.zipInput.trim()}"`;
     } else {
       detectedCity.textContent = '';
-      readout.textContent = 'Showing all verified Washington State programs (enter any 98xxx / 99xxx ZIP to sort by distance)';
+      if (readout) {
+        readout.textContent = 'Showing all verified US local & national programs';
+      }
     }
   }
 
@@ -1511,13 +2594,24 @@ Warm regards,
     const bar = document.getElementById('active-filters-bar');
     const tags = [];
 
+    if (state.scopeFilter !== 'all') {
+      tags.push({
+        label: state.scopeFilter === 'local' ? 'Scope: Local / State Only' : 'Scope: National & Remote Only',
+        clear: () => {
+          setScopePill('all');
+        }
+      });
+    }
+
     if (state.resolvedLocation) {
       tags.push({
-        label: `WA ZIP: ${state.resolvedLocation.zip} (${state.radius === 'all' ? 'Statewide' : '≤' + state.radius + ' mi'})`,
+        label: `Location: ${state.resolvedLocation.label} (${state.radius === 'all' ? 'Sorted by distance' : '≤' + state.radius + ' mi'})`,
         clear: () => {
           state.zipInput = '';
           state.resolvedLocation = null;
+          state.radius = 'all';
           document.getElementById('zip-search-input').value = '';
+          document.getElementById('radius-select').value = 'all';
           updateZipPills('');
         }
       });
@@ -1662,14 +2756,17 @@ Warm regards,
     const summaryEl = document.getElementById('results-summary-text');
     const gridEl = document.getElementById('opportunities-grid');
 
-    summaryEl.innerHTML = `Showing <strong>${list.length}</strong> of <strong>${state.opportunities.length}</strong> verified WA programs`;
+    const locSuffix = state.resolvedLocation
+      ? ` • Near <strong>${escapeHtml(state.resolvedLocation.label.split(',')[0])}</strong>`
+      : '';
+    summaryEl.innerHTML = `Showing <strong>${list.length}</strong> of <strong>${state.opportunities.length}</strong> verified US programs${locSuffix}`;
 
     if (list.length === 0) {
       gridEl.innerHTML = `
         <div class="empty-state-box">
           <h3 class="empty-state-title">No programs match those exact filters</h3>
           <p class="empty-state-text">
-            Try expanding your distance to "All WA State" or resetting filters to browse all Washington hospitals, free clinics, and labs.
+            Try switching Scope to "All US (Local + National)" or resetting filters to browse all local hospitals, free clinics, and national remote programs.
           </p>
           <button type="button" class="btn btn-primary" id="empty-reset-btn">Reset Filters</button>
         </div>
@@ -1682,11 +2779,12 @@ Warm regards,
     gridEl.innerHTML = list
       .map((opp) => {
         const isSaved = state.savedIds.has(opp.id);
+        const natRemote = isNationalOrRemote(opp);
         const distanceBadge =
           opp.distanceMiles !== null
             ? `<span class="badge badge-distance">${opp.distanceMiles} mi</span>`
-            : opp.isRemote
-            ? `<span class="badge badge-distance">Remote</span>`
+            : natRemote
+            ? `<span class="badge badge-distance">National / Remote</span>`
             : '';
 
         const clinicalBadge = opp.directPatientContact
@@ -1891,10 +2989,9 @@ Warm regards,
     } else if (action === 'filter-seattle-hospitals') {
       state.facilityType = 'Hospital / Medical Center';
       document.getElementById('facility-filter-select').value = 'Hospital / Medical Center';
-      state.selectedRegions.add('Seattle & King County');
-      state.selectedRegions.add('Eastside (Bellevue / Kirkland / Redmond)');
-      document.getElementById('reg-seattle').checked = true;
-      document.getElementById('reg-eastside').checked = true;
+      state.selectedRegions.add('Pacific Northwest (WA / OR)');
+      const pnwCb = document.getElementById('reg-pnw');
+      if (pnwCb) pnwCb.checked = true;
     } else if (action === 'filter-hs') {
       state.selectedEligibilities.add('High School (16+)');
       document.getElementById('elig-hs').checked = true;
@@ -1902,10 +2999,9 @@ Warm regards,
       state.facilityType = 'Academic / Research Lab';
       document.getElementById('facility-filter-select').value = 'Academic / Research Lab';
     } else if (action === 'filter-eastern-wa') {
-      state.selectedRegions.add('Eastern WA (Spokane / Pullman / Tri-Cities)');
-      state.selectedRegions.add('Central & SW WA (Yakima / Vancouver)');
-      document.getElementById('reg-eastwa').checked = true;
-      document.getElementById('reg-central').checked = true;
+      state.selectedRegions.add('Pacific Northwest (WA / OR)');
+      const pnwCb = document.getElementById('reg-pnw');
+      if (pnwCb) pnwCb.checked = true;
     }
     renderAll();
   }
@@ -1940,8 +3036,8 @@ Warm regards,
     if (savedOpps.length === 0) {
       savedListEl.innerHTML = `
         <div class="empty-state-box" style="padding: 2rem 1rem;">
-          <p class="empty-state-text" style="margin-bottom: 0.75rem;">You haven't bookmarked any Washington programs yet.</p>
-          <button type="button" class="btn btn-primary btn-sm" id="tracker-go-explore-btn">Browse WA Opportunities</button>
+          <p class="empty-state-text" style="margin-bottom: 0.75rem;">You haven't bookmarked any US programs yet.</p>
+          <button type="button" class="btn btn-primary btn-sm" id="tracker-go-explore-btn">Browse US Opportunities</button>
         </div>
       `;
       const goBtn = document.getElementById('tracker-go-explore-btn');
@@ -2052,6 +3148,13 @@ Warm regards,
     });
   }
 
+  function setScopePill(scope) {
+    state.scopeFilter = scope;
+    document.querySelectorAll('.scope-pill').forEach((pill) => {
+      pill.classList.toggle('active', pill.getAttribute('data-scope') === scope);
+    });
+  }
+
   function bindSearchAndFilters() {
     const zipInput = document.getElementById('zip-search-input');
     const radiusSelect = document.getElementById('radius-select');
@@ -2063,6 +3166,13 @@ Warm regards,
     function handleZipChange() {
       state.zipInput = zipInput.value;
       state.resolvedLocation = resolveSearchLocation(state.zipInput);
+      if (state.resolvedLocation && state.radius === 'all') {
+        state.radius = '10';
+        radiusSelect.value = '10';
+      } else if (!state.zipInput.trim() && state.radius !== 'remote') {
+        state.radius = 'all';
+        radiusSelect.value = 'all';
+      }
       updateZipPills(state.resolvedLocation ? state.resolvedLocation.zip : '');
       switchTab('explore');
       renderAll();
@@ -2071,6 +3181,11 @@ Warm regards,
     zipInput.addEventListener('input', handleZipChange);
     radiusSelect.addEventListener('change', () => {
       state.radius = radiusSelect.value;
+      if (state.radius === 'remote') {
+        setScopePill('national');
+      } else if (state.radius !== 'all' && state.scopeFilter === 'national') {
+        setScopePill('local');
+      }
       switchTab('explore');
       renderAll();
     });
@@ -2094,6 +3209,22 @@ Warm regards,
       renderAll();
     });
 
+    document.querySelectorAll('.scope-pill').forEach((pill) => {
+      pill.addEventListener('click', () => {
+        const sc = pill.getAttribute('data-scope') || 'all';
+        setScopePill(sc);
+        if (sc === 'national' && state.radius !== 'all' && state.radius !== 'remote') {
+          state.radius = 'all';
+          radiusSelect.value = 'all';
+        } else if (sc === 'local' && state.radius === 'remote') {
+          state.radius = state.resolvedLocation ? '10' : 'all';
+          radiusSelect.value = state.radius;
+        }
+        switchTab('explore');
+        renderAll();
+      });
+    });
+
     document.querySelectorAll('.zip-pill').forEach((pill) => {
       pill.addEventListener('click', () => {
         const z = pill.getAttribute('data-zip');
@@ -2101,8 +3232,8 @@ Warm regards,
         state.zipInput = z;
         state.resolvedLocation = resolveSearchLocation(z);
         if (z && state.radius === 'all') {
-          state.radius = '25';
-          radiusSelect.value = '25';
+          state.radius = '10';
+          radiusSelect.value = '10';
         }
         updateZipPills(z);
         switchTab('explore');
@@ -2235,7 +3366,8 @@ Warm regards,
   function resetAllFilters() {
     state.zipInput = '';
     state.resolvedLocation = null;
-    state.radius = '25';
+    state.radius = 'all';
+    state.scopeFilter = 'all';
     state.facilityType = 'all';
     state.keyword = '';
     state.selectedRegions.clear();
@@ -2251,9 +3383,11 @@ Warm regards,
     state.activePreset = null;
 
     document.getElementById('zip-search-input').value = '';
-    document.getElementById('radius-select').value = '25';
+    document.getElementById('radius-select').value = 'all';
     document.getElementById('facility-filter-select').value = 'all';
     document.getElementById('keyword-search-input').value = '';
+
+    setScopePill('all');
 
     document.querySelectorAll('.filters-sidebar input[type="checkbox"]').forEach((cb) => {
       cb.checked = false;
