@@ -445,22 +445,26 @@ class ScrubInHandler(BaseHTTPRequestHandler):
       import zipfile
       buf = io.BytesIO()
       files_to_zip = [
-          ".gitignore",
-          "Dockerfile",
-          "README.md",
-          "deploy.sh",
-          "render.yaml",
-          "server.py",
-          "public/index.html",
-          "public/index.css",
-          "public/app.js",
-          "public/assets/hero-illustration.jpg",
+          (".gitignore", ".gitignore"),
+          ("Dockerfile", "Dockerfile"),
+          ("README.md", "README.md"),
+          ("deploy.sh", "deploy.sh"),
+          ("render.yaml", "render.yaml"),
+          ("server.py", "server.py"),
+          ("public/index.html", "index.html"),
+          ("public/index.css", "index.css"),
+          ("public/app.js", "app.js"),
+          ("public/assets/hero-illustration.jpg", "hero-illustration.jpg"),
+          ("public/index.html", "public/index.html"),
+          ("public/index.css", "public/index.css"),
+          ("public/app.js", "public/app.js"),
+          ("public/assets/hero-illustration.jpg", "public/assets/hero-illustration.jpg"),
       ]
       with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
-        for rel_path in files_to_zip:
-          abs_p = os.path.join(BASE_DIR, rel_path)
+        for src_rel, arc_rel in files_to_zip:
+          abs_p = os.path.join(BASE_DIR, src_rel)
           if os.path.isfile(abs_p):
-            zf.write(abs_p, arcname=rel_path)
+            zf.write(abs_p, arcname=arc_rel)
       zip_bytes = buf.getvalue()
       self.send_response(200)
       self.send_header("Content-Type", "application/zip")
