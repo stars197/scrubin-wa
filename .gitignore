@@ -1,0 +1,14 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local SQLite database (rebuilt automatically on startup by 24h sync daemon)
+medpath.db
+medpath.db-journal
+*.log
+.DS_Store
+
+# Admin feedback logs
+feedback_submissions.csv
+feedback_submissions.jsonl

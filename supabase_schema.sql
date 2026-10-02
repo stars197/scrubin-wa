@@ -40,3 +40,14 @@ CREATE POLICY "Students can manage own clinical hours"
   ON public.clinical_hours_log
   FOR ALL
   USING (auth.uid() = user_id);
+
+CREATE TABLE IF NOT EXISTS public.feedback_reports (
+  id TEXT PRIMARY KEY,
+  category TEXT NOT NULL,
+  context TEXT,
+  message TEXT NOT NULL,
+  email TEXT,
+  status TEXT DEFAULT 'Open',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+

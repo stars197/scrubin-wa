@@ -1,32 +1,19 @@
 #!/usr/bin/env bash
-# ScrubIn WA — Public & Local Deployment Helper Script
-# Supports:
-#   1. Local / Cloudtop Server (default: port 8080)
-#   2. Google Cloud Run (./deploy.sh cloudrun <GCP_PROJECT_ID>)
-
+# ScrubIn Health — Automated GitHub + Render Deployment Script
 set -euo pipefail
 
-MODE="${1:-local}"
-PROJECT_ID="${2:-}"
-PORT="${PORT:-8080}"
+cd "$(dirname "$0")"
 
-if [[ "$MODE" == "cloudrun" ]]; then
-  if [[ -z "$PROJECT_ID" ]]; then
-    echo "Usage: ./deploy.sh cloudrun <GCP_PROJECT_ID>"
-    exit 1
-  fi
-  echo "Deploying ScrubIn WA to Google Cloud Run (us-west1) in project: $PROJECT_ID ..."
-  gcloud run deploy scrubin-wa \
-    --source . \
-    --project "$PROJECT_ID" \
-    --region us-west1 \
-    --allow-unauthenticated \
-    --min-instances 1 \
-    --port 8080
-  exit 0
+cp public/index.html ./index.html
+cp public/index.css ./index.css
+cp public/app.js ./app.js
+cp public/assets/hero-illustration.jpg ./hero-illustration.jpg
+
+if [[ -n "$(git status --porcelain)" ]]; then
+  git add -A
+  git commit -m "Deploy ScrubIn Health updates ($(date -u +'%Y-%m-%d %H:%M UTC'))"
 fi
 
-echo "Starting ScrubIn WA server (with 24h NIH & Link Sync Daemon) on port ${PORT}..."
-echo "Local URL:    http://localhost:${PORT}"
-echo "Cloudtop URL: http://$(hostname -f):${PORT}"
-exec python3 "$(dirname "$0")/server.py"
+echo "Pushing latest ScrubIn Health build to GitHub (stars197/scrubin-wa)..."
+git push origin main
+echo "Done! Render is now building and deploying to https://scrubinhealth.com (~60-90 seconds)."
