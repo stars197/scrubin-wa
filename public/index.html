@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&amp;family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/index.css?v=7" />
+  <link rel="stylesheet" href="/index.css?v=8" />
 </head>
 <body>
 
@@ -41,7 +41,7 @@
         <button type="button" class="nav-tab active" id="nav-tab-explore" data-tab="explore">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           <span>Opportunities</span>
-          <span class="nav-badge" id="nav-total-count">56</span>
+          <span class="nav-badge" id="nav-total-count">64</span>
         </button>
         <button type="button" class="nav-tab" id="nav-tab-toolkit" data-tab="toolkit">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
@@ -75,7 +75,7 @@
   <section class="hero-section" aria-label="Search Local and National US Clinical and Research Opportunities">
     <div class="hero-container">
       <div class="hero-compact-header">
-        <h1 class="hero-headline">Find local and national hospital, clinic, and research shifts across the US.</h1>
+        <h1 class="hero-headline">Find local and national hospital, dental, free clinic, and research shifts across the US.</h1>
       </div>
 
       <!-- Streamlined Search Console -->
@@ -109,6 +109,7 @@
             <select id="facility-filter-select" class="form-select">
               <option value="all">All Facility Types</option>
               <option value="Hospital / Medical Center">Hospitals &amp; Medical Centers</option>
+              <option value="Dental Clinic / School">🦷 Dental Clinics &amp; Dental Schools</option>
               <option value="Free Clinic / FQHC">Free Clinics &amp; FQHCs</option>
               <option value="Academic / Research Lab">Research Labs &amp; NIH Trials</option>
               <option value="Hospice & Palliative Care">Hospice &amp; Palliative Care</option>
@@ -120,7 +121,7 @@
             <label for="keyword-search-input" class="field-label">Keyword</label>
             <div class="input-with-icon">
               <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-              <input type="text" id="keyword-search-input" class="form-input" placeholder="UCLA, Johns Hopkins, UW, NIH, Shadowing..." />
+              <input type="text" id="keyword-search-input" class="form-input" placeholder="Dental, UCLA, UW, NIH, Shadowing..." />
             </div>
           </div>
 
@@ -146,10 +147,36 @@
 
         <!-- Main Feed (Full-Width, Centered, Zero Default Clutter) -->
         <div class="feed-column">
+
+          <!-- Specialty Quick-Switch Tabs (Medical, Dental, Primary Care, Research, etc.) -->
+          <div class="specialty-tabs-bar" id="specialty-tabs-bar" role="tablist" aria-label="Filter by Specialty Track">
+            <button type="button" class="specialty-tab-pill active" data-spec-tab="all" role="tab" aria-selected="true">
+              <span>All Specialties</span>
+            </button>
+            <button type="button" class="specialty-tab-pill" data-spec-tab="Dental & Oral Health" role="tab" aria-selected="false">
+              <span>🦷 Dental &amp; Oral Health</span>
+            </button>
+            <button type="button" class="specialty-tab-pill" data-spec-tab="Emergency Medicine & Trauma" role="tab" aria-selected="false">
+              <span>🚑 Emergency &amp; Trauma</span>
+            </button>
+            <button type="button" class="specialty-tab-pill" data-spec-tab="Primary Care & Underserved" role="tab" aria-selected="false">
+              <span>🩺 Primary Care &amp; Free Clinics</span>
+            </button>
+            <button type="button" class="specialty-tab-pill" data-spec-tab="Translational & Clinical Research" role="tab" aria-selected="false">
+              <span>🧬 Clinical &amp; Lab Research</span>
+            </button>
+            <button type="button" class="specialty-tab-pill" data-spec-tab="Pediatrics & Child Life" role="tab" aria-selected="false">
+              <span>🧸 Pediatrics &amp; Child Life</span>
+            </button>
+            <button type="button" class="specialty-tab-pill" data-spec-tab="Oncology, Surgery & Hospice" role="tab" aria-selected="false">
+              <span>🎗️ Oncology, Surgery &amp; Hospice</span>
+            </button>
+          </div>
+
           <div class="results-toolbar">
             <div class="toolbar-left-group">
               <div class="results-summary" id="results-summary-text">
-                Showing <strong>56</strong> verified US programs
+                Showing <strong>64</strong> verified US programs
               </div>
               <div class="scope-segmented-control" role="group" aria-label="Filter by Local or National Scope">
                 <button type="button" class="scope-pill active" data-scope="all" id="scope-btn-all">All US</button>
@@ -302,8 +329,14 @@
 
               <!-- Medical Field / Specialty -->
               <div class="filter-section">
-                <h3 class="filter-group-title">Medical Specialty</h3>
+                <h3 class="filter-group-title">Medical &amp; Dental Specialty</h3>
                 <div class="checkbox-list" id="specialty-filter-list">
+                  <label class="checkbox-row">
+                    <span class="checkbox-row-left">
+                      <input type="checkbox" name="specialty" value="Dental & Oral Health" id="spec-dental" />
+                      <span>🦷 Dental &amp; Oral Health</span>
+                    </span>
+                  </label>
                   <label class="checkbox-row">
                     <span class="checkbox-row-left">
                       <input type="checkbox" name="specialty" value="Emergency Medicine & Trauma" id="spec-er" />
@@ -353,7 +386,7 @@
 
           <div class="active-filters-bar" id="active-filters-bar" aria-live="polite"></div>
 
-          <div class="opportunities-grid" id="opportunities-grid" role="region" aria-label="Washington State Volunteer Opportunities List">
+          <div class="opportunities-grid" id="opportunities-grid" role="region" aria-label="US Volunteer Opportunities List">
             <!-- Populated dynamically by app.js -->
           </div>
         </div>
@@ -361,15 +394,15 @@
     </section>
 
     <!-- ====================================================================
-         TAB 2: US PRE-MED DISCOVERY ENGINE & STARTER PLAYBOOK
+         TAB 2: US PRE-MED & PRE-DENTAL DISCOVERY ENGINE & STARTER PLAYBOOK
          ==================================================================== -->
     <section id="tab-panel-toolkit" class="tab-panel" aria-labelledby="nav-tab-toolkit">
       <div class="section-header-block">
         <div>
           <span class="resource-category">National &amp; Regional Portals</span>
-          <h2 class="section-heading">US Pre-Med Opportunity Finder &amp; Starter Playbook</h2>
+          <h2 class="section-heading">US Pre-Med &amp; Pre-Dental Opportunity Finder &amp; Playbook</h2>
           <p class="section-subheading">
-            Direct links to national free clinic networks (NAFC / HRSA FQHCs), NIH &amp; AAMC summer fellowships, fast-track clinical credentials, and cold-email templates.
+            Direct links to national free clinic &amp; dental networks (NAFC / RAM / HRSA FQHCs), NIH &amp; AAMC/ADEA fellowships, fast-track credentials, and cold-email templates.
           </p>
         </div>
       </div>
@@ -377,9 +410,9 @@
       <div class="discovery-filter-bar" role="group" aria-label="Filter Discovery Portals">
         <button type="button" class="discovery-filter-btn active" data-disc-cat="all" id="disc-btn-all">All Portals</button>
         <button type="button" class="discovery-filter-btn" data-disc-cat="Research & Lab Finder" id="disc-btn-research">NIH &amp; Research Labs</button>
-        <button type="button" class="discovery-filter-btn" data-disc-cat="Free & FQHC Clinic Network" id="disc-btn-clinics">Free &amp; FQHC Clinics</button>
+        <button type="button" class="discovery-filter-btn" data-disc-cat="Free & FQHC Clinic Network" id="disc-btn-clinics">Free &amp; Dental Clinics</button>
         <button type="button" class="discovery-filter-btn" data-disc-cat="Shadowing & Hospital Portals" id="disc-btn-shadowing">Shadowing &amp; Hospitals</button>
-        <button type="button" class="discovery-filter-btn" data-disc-cat="WA Fast-Track Credentials" id="disc-btn-credentials">Clinical Credentials (EMT / CNA / MA)</button>
+        <button type="button" class="discovery-filter-btn" data-disc-cat="WA Fast-Track Credentials" id="disc-btn-credentials">Clinical Credentials (EMT / CNA / DA)</button>
       </div>
 
       <div class="discovery-portals-grid" id="discovery-portals-grid"></div>
@@ -388,7 +421,7 @@
         <!-- Interactive Clinical Readiness Checklist -->
         <div class="panel-card">
           <div class="panel-card-header">
-            <h3 class="panel-card-title">Hospital Onboarding Checklist</h3>
+            <h3 class="panel-card-title">Hospital &amp; Clinic Onboarding Checklist</h3>
             <span class="progress-pill" id="checklist-progress-text">0 / 6 Ready</span>
           </div>
           <div class="progress-bar-track" aria-hidden="true">
@@ -407,6 +440,7 @@
           </div>
           <div class="template-tabs" role="tablist">
             <button type="button" class="template-tab-btn active" id="tpl-btn-research" data-template="research">Research PI</button>
+            <button type="button" class="template-tab-btn" id="tpl-btn-dental" data-template="dental">🦷 Dentist Shadowing</button>
             <button type="button" class="template-tab-btn" id="tpl-btn-clinic" data-template="clinic">Free Clinic</button>
             <button type="button" class="template-tab-btn" id="tpl-btn-shadowing" data-template="shadowing">MD Shadowing</button>
             <button type="button" class="template-tab-btn" id="tpl-btn-hospital" data-template="hospital">Hospital Check-In</button>
@@ -499,6 +533,7 @@
               <label for="log-category-select" class="field-label">Category</label>
               <select id="log-category-select" class="form-select">
                 <option value="Clinical (Direct Patient)">Clinical (Direct Patient)</option>
+                <option value="Dental Shadowing / Clinic (AADSAS)">🦷 Dental Shadowing / Clinic (AADSAS)</option>
                 <option value="Research / Lab">Research / Lab</option>
                 <option value="Physician Shadowing">Physician Shadowing</option>
                 <option value="Community Health">Community Health</option>
@@ -513,8 +548,8 @@
               <input type="date" id="log-date-input" class="form-input" required />
             </div>
             <div class="full-span">
-              <label for="log-supervisor-input" class="field-label">Supervisor / Coordinator (Optional — for AMCAS Verification)</label>
-              <input type="text" id="log-supervisor-input" class="form-input" placeholder="e.g. Dr. Elena Rostova / volunteer@uw.edu" />
+              <label for="log-supervisor-input" class="field-label">Supervisor / Coordinator (Optional — for AMCAS / AADSAS Verification)</label>
+              <input type="text" id="log-supervisor-input" class="form-input" placeholder="e.g. Dr. Elena Rostova, DDS / volunteer@uw.edu" />
             </div>
             <div class="full-span">
               <label for="log-reflection-input" class="field-label">Notes / Takeaway</label>
@@ -580,16 +615,17 @@
         <div class="form-grid-2">
           <div class="full-width">
             <label for="new-opp-title" class="field-label">Role Title *</label>
-            <input type="text" id="new-opp-title" class="form-input" placeholder="e.g. Emergency Dept Volunteer" required />
+            <input type="text" id="new-opp-title" class="form-input" placeholder="e.g. Emergency Dept or Dental Clinic Volunteer" required />
           </div>
           <div>
-            <label for="new-opp-org" class="field-label">Hospital, Clinic, or Lab *</label>
-            <input type="text" id="new-opp-org" class="form-input" placeholder="e.g. UCLA Health / UW Medicine" required />
+            <label for="new-opp-org" class="field-label">Hospital, Dental Clinic, or Lab *</label>
+            <input type="text" id="new-opp-org" class="form-input" placeholder="e.g. UCLA Health / UW Dentistry" required />
           </div>
           <div>
             <label for="new-opp-facility" class="field-label">Facility Type *</label>
             <select id="new-opp-facility" class="form-select" required>
               <option value="Hospital / Medical Center">Hospital / Medical Center</option>
+              <option value="Dental Clinic / School">🦷 Dental Clinic / School</option>
               <option value="Free Clinic / FQHC">Free Clinic / FQHC</option>
               <option value="Academic / Research Lab">Academic / Research Lab</option>
               <option value="Hospice & Palliative Care">Hospice &amp; Palliative Care</option>
@@ -599,6 +635,7 @@
           <div>
             <label for="new-opp-specialty" class="field-label">Specialty *</label>
             <select id="new-opp-specialty" class="form-select" required>
+              <option value="Dental & Oral Health">🦷 Dental &amp; Oral Health</option>
               <option value="Emergency Medicine & Trauma">Emergency &amp; Trauma</option>
               <option value="Pediatrics & Child Life">Pediatrics &amp; Child Life</option>
               <option value="Primary Care & Underserved">Primary Care &amp; Free Clinic</option>
@@ -665,7 +702,7 @@
           <span class="resource-category">Cloud Backup &amp; Multi-Device Sync</span>
           <h2 class="opp-title" id="auth-modal-title" style="margin-top: 0.2rem;">Sign In to Sync Your Hours</h2>
           <p style="font-size: 0.84rem; color: var(--ink-secondary); margin-top: 0.2rem;">
-            Back up your clinical, research, and shadowing hours so they stay in sync across your phone and laptop.
+            Back up your clinical, dental, research, and shadowing hours so they stay in sync across your phone and laptop.
           </p>
         </div>
         <button type="button" class="modal-close-btn" id="close-auth-modal-btn" aria-label="Close modal">&times;</button>
@@ -712,6 +749,7 @@
             <label for="auth-track-select" class="field-label">Pre-Health Track</label>
             <select id="auth-track-select" class="form-select">
               <option value="Pre-Med (MD / DO)">Pre-Med (MD / DO)</option>
+              <option value="Pre-Dental (AADSAS)">🦷 Pre-Dental (AADSAS)</option>
               <option value="Pre-PA (CASPA)">Pre-PA (CASPA)</option>
               <option value="Pre-Nursing / BSN">Pre-Nursing / BSN</option>
               <option value="High School Pre-Health">High School Pre-Health</option>
@@ -815,7 +853,7 @@
   <footer class="site-footer" role="contentinfo">
     <div class="footer-inner">
       <div>
-        <strong>ScrubIn Health</strong> — Simple, verified local &amp; national clinical, hospital, free clinic &amp; research directory.
+        <strong>ScrubIn Health</strong> — Simple, verified local &amp; national clinical, hospital, dental, free clinic &amp; research directory.
       </div>
       <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.85rem;">
         <span>Covers all 50 US States + National &amp; Remote Programs • Updated every 24h.</span>
@@ -826,6 +864,6 @@
     </div>
   </footer>
 
-  <script src="/app.js?v=11"></script>
+  <script src="/app.js?v=12"></script>
 </body>
 </html>

@@ -2030,4 +2030,59 @@ body {
   }
 }
 
+/* ==========================================================================
+   Specialty Quick-Switch Tabs Bar (All, Dental, Emergency, Primary Care, etc.)
+   ========================================================================== */
+.specialty-tabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  overflow-x: auto;
+  padding: 0.35rem 0.4rem;
+  margin-bottom: 0.85rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xs);
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
 
+.specialty-tabs-bar::-webkit-scrollbar {
+  height: 4px;
+}
+
+.specialty-tabs-bar::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+}
+
+.specialty-tab-pill {
+  appearance: none;
+  border: 1px solid transparent;
+  background-color: transparent;
+  color: var(--ink-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.48rem 0.85rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 130ms ease;
+}
+
+.specialty-tab-pill:hover {
+  background-color: var(--bg-subtle);
+  color: var(--ink-primary);
+}
+
+.specialty-tab-pill.active {
+  background-color: var(--teal-deep);
+  color: #ffffff;
+  border-color: var(--teal-deep);
+  box-shadow: 0 2px 6px rgba(22, 44, 43, 0.16);
+}

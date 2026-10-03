@@ -1960,6 +1960,284 @@
       ],
       clearances: ['Occupational Health Immunization & TB Clearance', 'Background Check', 'Unit Training'],
       contactInfo: 'https://www.uofmhealth.org/about-umhs/volunteer-services'
+    },
+
+    // =========================================================================
+    // 🦷 VERIFIED LOCAL & NATIONAL DENTAL & ORAL HEALTH OPPORTUNITIES (AADSAS)
+    // =========================================================================
+    {
+      id: 'us-dental-001',
+      title: 'Seattle/King County Clinic & Free Dental Triage / Chairside Volunteer',
+      organization: 'Seattle Center Foundation & Seattle-King County Dental Society (SKCDS)',
+      facilityType: 'Dental Clinic / School',
+      waRegion: 'Pacific Northwest (WA / OR)',
+      specialty: 'Dental & Oral Health',
+      zipCode: '98109',
+      city: 'Seattle (Seattle Center / Lower Queen Anne), WA',
+      lat: 47.6215,
+      lon: -122.3509,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: true,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: 'Multi-day clinic cohorts & year-round SKCDS referrals',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: false,
+      status: 'Accepting Applications',
+      applicationCycle: 'Annual Mega-Clinic & Year-Round SKCDS Community Dental Clinics',
+      portalUrl: 'https://seattlecenter.org/skcclinic/volunteers/',
+      insiderTip: 'Washington State’s largest free dental and medical clinic event! Pre-dental students work side-by-side with UW School of Dentistry faculty, oral surgeons, and general dentists assisting with dental sterilization, X-ray routing, and chairside patient flow.',
+      description: 'Support high-volume free restorative, endodontic, oral surgery, and hygiene care for uninsured patients in Seattle alongside licensed dentists and hygienists.',
+      duties: [
+        'Escort dental patients between panoramic radiography, oral surgery bays, and restorative chairs',
+        'Assist dental sterilization technicians and instrument supply runners',
+        'Observe general dentists, endodontists, and oral & maxillofacial surgeons in direct care'
+      ],
+      clearances: ['Age 18+ for clinical floor (16+ support)', 'Volunteer Orientation'],
+      contactInfo: 'SKCClinic@seattlecenter.org | https://seattlecenter.org/skcclinic/volunteers/'
+    },
+    {
+      id: 'us-dental-002',
+      title: 'UW School of Dentistry Pre-Dental Observership, Dental Camp & Oral Health Research',
+      organization: 'University of Washington School of Dentistry (Health Sciences B-Wing)',
+      facilityType: 'Dental Clinic / School',
+      waRegion: 'Pacific Northwest (WA / OR)',
+      specialty: 'Dental & Oral Health',
+      zipCode: '98195',
+      city: 'Seattle (UW Campus), WA',
+      lat: 47.6503,
+      lon: -122.3077,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: true,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '1 quarter or summer intensive',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: false,
+      status: 'Accepting Applications',
+      applicationCycle: 'Quarterly Pre-Dental Events & Summer Dental Camp',
+      portalUrl: 'https://dental.washington.edu/oepd/',
+      insiderTip: 'Run by the UW School of Dentistry Office of Educational Partnerships & Diversity (OEPD). Connects pre-dental students with DDS student mentors, wax-carving/hand-skills workshops, oral biology research labs, and the DECOD (Dental Education in Care of Persons with Disabilities) clinic.',
+      description: 'Gain structured pre-dental mentorship, clinical observation in specialty dental clinics (pediatric dentistry, oral surgery, DECOD), and oral health research exposure at UW School of Dentistry.',
+      duties: [
+        'Observe DDS candidates and attending dental faculty in Urgent Care, Pediatric Dentistry, and Oral Surgery clinics',
+        'Participate in pre-dental simulation workshops (dental anatomy, waxing, impressions) and AADSAS prep',
+        'Assist Oral Health Sciences research labs investigating craniofacial biology and cariology'
+      ],
+      clearances: ['HIPAA Confidentiality', 'UW Immunization & TB Clearance for clinic observation'],
+      contactInfo: 'dentadmit@uw.edu | https://dental.washington.edu/oepd/'
+    },
+    {
+      id: 'us-dental-003',
+      title: 'Sea Mar Community Dental Clinics — Pre-Dental Volunteer & Dental Assistant Apprentice',
+      organization: 'Sea Mar Community Health Centers (18+ WA Community Dental Clinics)',
+      facilityType: 'Dental Clinic / School',
+      waRegion: 'Pacific Northwest (WA / OR)',
+      specialty: 'Dental & Oral Health',
+      zipCode: '98108',
+      city: 'Seattle, Bellevue, Tacoma, Everett, Vancouver & Bellingham, WA',
+      lat: 47.5390,
+      lon: -122.3160,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: true,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '3–6 months (or 100+ AADSAS hours)',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: false,
+      status: 'Accepting Applications',
+      applicationCycle: 'Year-Round Rolling Onboarding',
+      portalUrl: 'https://www.seamarchc.org/volunteer/',
+      insiderTip: 'Just like WA’s MA-R law for pre-meds, Washington State allows you to register as a Dental Assistant with the WA DOH in 1 week with zero prior schooling! Sea Mar’s 18+ dental clinics across WA love pre-dental volunteers and bilingual dental navigators.',
+      description: 'Serve low-income, farmworker, and immigrant patients across Sea Mar’s safety-net dental clinics in Western and Central Washington while earning verified AADSAS dental hours.',
+      duties: [
+        'Assist dental reception, bilingual patient navigation, and oral hygiene education for pediatric and adult patients',
+        'Shadow public health dentists and dental hygienists performing restorative and preventative procedures',
+        'Support operatory turnover, sterilization workflow, and community dental sealants outreach'
+      ],
+      clearances: ['TB Test & Immunization Record', 'WA State Patrol (WATCH) Background Check', 'Hospital/Clinic Orientation'],
+      contactInfo: 'volunteer@seamarchc.org | https://www.seamarchc.org/volunteer/'
+    },
+    {
+      id: 'us-dental-004',
+      title: 'Lahai Health & Medical Teams International Free Mobile Dental Clinic Volunteer',
+      organization: 'Lahai Health Dental Clinic (Lynnwood) & Puget Sound Free Dental Network',
+      facilityType: 'Dental Clinic / School',
+      waRegion: 'Pacific Northwest (WA / OR)',
+      specialty: 'Dental & Oral Health',
+      zipCode: '98036',
+      city: 'Lynnwood / North Seattle & South Sound, WA',
+      lat: 47.8209,
+      lon: -122.3151,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: true,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '6 months',
+      studentLevels: ['Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: true,
+      status: 'Accepting Applications',
+      applicationCycle: 'Year-Round Rolling Applications',
+      portalUrl: 'https://lahai.org/volunteer/',
+      insiderTip: 'Dental schools (especially UW School of Dentistry) strongly favor applicants with underserved community dental hours. Lahai Health runs dedicated free dental operatories where pre-dental students work closely with volunteer dentists.',
+      description: 'Help deliver free urgent dental extractions, fillings, and hygiene care to uninsured neighbors in Snohomish and King Counties.',
+      duties: [
+        'Check in dental patients, review medical/dental histories, and prepare digital charts',
+        'Assist volunteer dentists and hygienists with chairside suction, sterilization, and operatory setup',
+        'Earn longitudinal supervision for a strong dentist Letter of Evaluation (AADSAS LOE)'
+      ],
+      clearances: ['Age 18+', 'WA DOH Dental Assistant Registration (optional for chairside)', 'Background Check'],
+      contactInfo: 'volunteer@lahai.org | https://lahai.org/volunteer/'
+    },
+    {
+      id: 'us-dental-005',
+      title: 'UCLA School of Dentistry & Venice Dental Center Pre-Dental Volunteer',
+      organization: 'UCLA School of Dentistry (Westwood & Venice Community Dental Clinic)',
+      facilityType: 'Dental Clinic / School',
+      waRegion: 'California & West (CA / CO)',
+      specialty: 'Dental & Oral Health',
+      zipCode: '90095',
+      city: 'Los Angeles (Westwood & Venice), CA',
+      lat: 34.0664,
+      lon: -118.4453,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: true,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '1–2 quarters (50–100 hours)',
+      studentLevels: ['Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: false,
+      status: 'Accepting Applications',
+      applicationCycle: 'Quarterly Academic & Summer Cohorts',
+      portalUrl: 'https://dentistry.ucla.edu/academics-admissions/pre-dental-programs',
+      insiderTip: 'One of the top public dental schools in the country. Pre-dental students in Southern California can combine UCLA’s Basic Dental Principles course/observerships with community mobile clinics in Inglewood, Venice, and Downtown LA.',
+      description: 'Observe and support dental student clinics, oral & maxillofacial surgery teams, and community dental outreach at UCLA School of Dentistry.',
+      duties: [
+        'Observe D3/D4 dental students and faculty in general clinic, endodontics, periodontics, and orthodontics',
+        'Support community oral health screenings and pediatric fluoride/sealant fairs across Los Angeles',
+        'Assist craniofacial and saliva diagnostics research labs in the Center for the Health Sciences (CHS)'
+      ],
+      clearances: ['UCLA Health Immunization & TB Clearance', 'HIPAA Training'],
+      contactInfo: 'https://dentistry.ucla.edu/academics-admissions/pre-dental-programs'
+    },
+    {
+      id: 'us-dental-006',
+      title: 'NYU College of Dentistry & Bellevue Oral Surgery Clinical / Research Volunteer',
+      organization: 'NYU College of Dentistry (Largest Dental School Clinic in the US)',
+      facilityType: 'Dental Clinic / School',
+      waRegion: 'Northeast & Mid-Atlantic (MA / NY / PA / MD)',
+      specialty: 'Dental & Oral Health',
+      zipCode: '10010',
+      city: 'New York (Kips Bay / First Ave), NY',
+      lat: 40.7376,
+      lon: -73.9781,
+      isRemote: false,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: true,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '1 semester or summer',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: false,
+      status: 'Accepting Applications',
+      applicationCycle: 'Fall, Spring & Summer Saturday Academy / Observerships',
+      portalUrl: 'https://dental.nyu.edu/aboutus/outreach.html',
+      insiderTip: 'NYU Dentistry handles over 300,000 patient visits per year at 345 E. 24th Street (right next to Bellevue and NYU Langone), including the Oral Health Center for People with Disabilities.',
+      description: 'Gain high-volume urban dental exposure, Saturday Academy pre-dental training, or oral cancer/biomaterials research experience at NYU College of Dentistry.',
+      duties: [
+        'Shadow general dentistry, pediatric dentistry, and special-care dentistry operatories',
+        'Participate in community dental screenings and head-and-neck cancer awareness outreach across NYC',
+        'Support translational oral pathology, pain, and biomaterials research teams'
+      ],
+      clearances: ['NY State Health & TB Clearance', 'Program Orientation'],
+      contactInfo: 'https://dental.nyu.edu/aboutus/outreach.html'
+    },
+    {
+      id: 'us-dental-007',
+      title: 'Remote Area Medical (RAM) — Free Pop-Up Dental, Vision & Medical Clinics (All 50 States)',
+      organization: 'Remote Area Medical (RAM USA — Nationwide Weekend Mobile Clinics)',
+      facilityType: 'Dental Clinic / School',
+      waRegion: 'National & Remote (All 50 States)',
+      specialty: 'Dental & Oral Health',
+      zipCode: 'National / All 50 States',
+      city: 'Nationwide Pop-Up Clinics (All US Regions)',
+      lat: 35.9606,
+      lon: -83.9207,
+      isRemote: true,
+      isNational: true,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: true,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: '1+ weekend expeditions (16–24 hours per weekend)',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: false,
+      status: 'Accepting Applications',
+      applicationCycle: 'Year-Round Weekend Clinics Across the US',
+      portalUrl: 'https://www.ramusa.org/volunteer-with-us/',
+      insiderTip: 'Over 60% of patients at Remote Area Medical clinics come specifically for FREE dental care! Pre-dental and pre-med students across the US can register as "General Support / Dental Triage & Sterilization" volunteers with zero prior certification and log 20+ hands-on dental & clinical hours in a single weekend.',
+      description: 'Join giant weekend mobile pop-up clinics across the United States delivering free dental extractions, fillings, cleanings, eye exams, and medical care to underserved rural and urban communities.',
+      duties: [
+        'Assist the Dental Triage, Dental Routing, and Instrument Sterilization teams alongside volunteer dentists',
+        'Guide patients from medical intake (blood pressure/glucose screening) to portable dental chairs',
+        'Shadow general dentists and oral surgeons treating high-need patients in mobile field clinics'
+      ],
+      clearances: ['Open to Students 16+ (under 18 with parent/guardian)', 'Online RAM Volunteer Registration'],
+      contactInfo: 'volunteers@ramusa.org | https://www.ramusa.org/volunteer-with-us/'
+    },
+    {
+      id: 'us-dental-008',
+      title: 'America’s Dentists Care Foundation — Mission of Mercy (MOM) Free Dental Clinics',
+      organization: 'America’s Dentists Care Foundation (ADCF) & State Dental Associations',
+      facilityType: 'Dental Clinic / School',
+      waRegion: 'National & Remote (All 50 States)',
+      specialty: 'Dental & Oral Health',
+      zipCode: 'National / All 50 States',
+      city: 'Nationwide State Dental Clinics (30+ States)',
+      lat: 39.0119,
+      lon: -98.4842,
+      isRemote: true,
+      isNational: true,
+      directPatientContact: true,
+      starterFriendly: true,
+      shadowingIncluded: true,
+      lorEligible: true,
+      weeklyHours: 4,
+      minDuration: 'Weekend Dental Clinic Events & University Pre-Dental Chapters',
+      studentLevels: ['High School (16+)', 'Undergrad / Pre-Med', 'Post-Bacc / Gap Year'],
+      weekendAvailable: true,
+      eveningAvailable: false,
+      status: 'Accepting Applications',
+      applicationCycle: 'Rolling State-by-State Dental Clinic Schedule',
+      portalUrl: 'https://www.adcf.net/clinic-schedule/',
+      insiderTip: 'Mission of Mercy (MOM) sets up 100-chair portable dental clinics in convention centers and arenas across 30+ states, treating 1,000+ dental patients per weekend. Every AADSAS admissions committee recognizes Mission of Mercy service.',
+      description: 'Volunteer directly inside 100-chair charitable dental clinics hosted by state dental associations nationwide—assisting with patient registration, X-ray flow, dental supply runners, and chairside observation.',
+      duties: [
+        'Serve as a Dental Department Lead Runner, X-Ray Escort, Sterilization Aide, or Post-Op Instructions Volunteer',
+        'Observe dozens of general dentists, pediatric dentists, endodontists, and oral surgeons in one place',
+        'Network with local dentists who frequently invite motivated student volunteers to shadow their private practices'
+      ],
+      clearances: ['Online Registration via State MOM Clinic Link', 'Closed-toe shoes & scrubs'],
+      contactInfo: 'https://www.adcf.net/clinic-schedule/'
     }
   ];
 
@@ -2198,6 +2476,23 @@ Sincerely,
 [Your Name]
 [Your Phone] | [Your Email]`,
 
+    dental: `Subject: Pre-Dental Student Shadowing / Clinic Volunteer Inquiry — [Your Name]
+
+Dear Dr. [Last Name] and [Dental Practice / Community Dental Clinic] Team,
+
+I hope your week is going well! My name is [Your Name], and I am a pre-dental student at [University / College Name] preparing for the AADSAS dental school application cycle.
+
+I greatly admire your practice's commitment to patient-centered dental care in [City/Neighborhood] and am reaching out to ask if you might be open to having a pre-dental student shadow your clinic for [1–2 half-days or a weekly 4-hour block] to observe general restorative dentistry and patient communication.
+
+• I have my immunization records (including Hep B & TB clearance), HIPAA training, and professional scrub attire ready.
+• If helpful to your team, I am also happy to assist with operatory turnover, sterilization flow, or community dental outreach.
+
+Thank you very much for considering my request and for supporting future dentists!
+
+Warm regards,
+[Your Name]
+[Your Phone] | [Your Email]`,
+
     hospital: `Subject: Prospective 6-Month Hospital Volunteer Inquiry — [Hospital Name] ([Unit Interest])
 
 Dear [Hospital Name] Volunteer Services Team,
@@ -2265,6 +2560,7 @@ Warm regards,
   const state = {
     opportunities: [],
     activeTab: 'explore',
+    activeSpecialtyTab: 'all',
     zipInput: '',
     resolvedLocation: null,
     radius: 'all',
@@ -2596,6 +2892,25 @@ Warm regards,
         if (!hay.includes(kw)) return false;
       }
 
+      // 4.5 Specialty Quick-Switch Tab Bar
+      if (state.activeSpecialtyTab && state.activeSpecialtyTab !== 'all') {
+        if (state.activeSpecialtyTab === 'Dental & Oral Health') {
+          if (opp.specialty !== 'Dental & Oral Health' && opp.facilityType !== 'Dental Clinic / School') {
+            return false;
+          }
+        } else if (state.activeSpecialtyTab === 'Oncology, Surgery & Hospice') {
+          if (
+            opp.specialty !== 'Oncology & Palliative Care' &&
+            opp.specialty !== 'Surgery, Inpatient & Simulation' &&
+            opp.facilityType !== 'Hospice & Palliative Care'
+          ) {
+            return false;
+          }
+        } else if (opp.specialty !== state.activeSpecialtyTab) {
+          return false;
+        }
+      }
+
       // 5. Specialty checkboxes
       if (state.selectedSpecialties.size > 0 && !state.selectedSpecialties.has(opp.specialty)) {
         return false;
@@ -2685,6 +3000,15 @@ Warm regards,
   function renderActiveFilterTags() {
     const bar = document.getElementById('active-filters-bar');
     const tags = [];
+
+    if (state.activeSpecialtyTab && state.activeSpecialtyTab !== 'all') {
+      tags.push({
+        label: `Specialty Track: ${state.activeSpecialtyTab}`,
+        clear: () => {
+          setSpecialtyTab('all');
+        }
+      });
+    }
 
     if (state.scopeFilter !== 'all') {
       tags.push({
@@ -3216,6 +3540,9 @@ Warm regards,
       const h = parseFloat(entry.hours) || 0;
       if (entry.category === 'Clinical (Direct Patient)' || entry.category === 'Community Health') {
         clinicalHrs += h;
+      } else if (entry.category === 'Dental Shadowing / Clinic (AADSAS)') {
+        clinicalHrs += h;
+        shadowingHrs += h;
       } else if (entry.category === 'Research / Lab') {
         researchHrs += h;
       } else if (entry.category === 'Physician Shadowing') {
@@ -3357,6 +3684,15 @@ Warm regards,
     });
   }
 
+  function setSpecialtyTab(specTab) {
+    state.activeSpecialtyTab = specTab;
+    document.querySelectorAll('.specialty-tab-pill').forEach((pill) => {
+      const isActive = pill.getAttribute('data-spec-tab') === specTab;
+      pill.classList.toggle('active', isActive);
+      pill.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+  }
+
   function bindSearchAndFilters() {
     const zipInput = document.getElementById('zip-search-input');
     const radiusSelect = document.getElementById('radius-select');
@@ -3364,6 +3700,15 @@ Warm regards,
     const keywordInput = document.getElementById('keyword-search-input');
     const searchBtn = document.getElementById('execute-search-btn');
     const sortSelect = document.getElementById('sort-select');
+
+    document.querySelectorAll('.specialty-tab-pill').forEach((pill) => {
+      pill.addEventListener('click', () => {
+        const specTab = pill.getAttribute('data-spec-tab') || 'all';
+        setSpecialtyTab(specTab);
+        switchTab('explore');
+        renderAll();
+      });
+    });
 
     function handleZipChange() {
       state.zipInput = zipInput.value;
@@ -3570,6 +3915,7 @@ Warm regards,
     state.resolvedLocation = null;
     state.radius = 'all';
     state.scopeFilter = 'all';
+    state.activeSpecialtyTab = 'all';
     state.facilityType = 'all';
     state.keyword = '';
     state.selectedRegions.clear();
@@ -3590,6 +3936,7 @@ Warm regards,
     document.getElementById('keyword-search-input').value = '';
 
     setScopePill('all');
+    setSpecialtyTab('all');
 
     document.querySelectorAll('.filters-sidebar input[type="checkbox"]').forEach((cb) => {
       cb.checked = false;
