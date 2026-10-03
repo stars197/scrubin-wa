@@ -25,6 +25,9 @@
   --accent-primary-hover: hsl(174, 67%, 18%);
   --accent-primary-soft: hsl(172, 42%, 92%);
   --accent-primary-text: hsl(174, 70%, 19%);
+  --teal-deep: hsl(178, 34%, 13%);
+  --teal-primary: hsl(174, 63%, 24%);
+  --teal-soft: hsl(172, 42%, 92%);
 
   --accent-warm: hsl(16, 72%, 44%);
   --accent-warm-soft: hsl(18, 68%, 93%);
@@ -2081,8 +2084,9 @@ body {
 }
 
 .specialty-tab-pill.active {
-  background-color: var(--teal-deep);
+  background-color: var(--accent-primary, #17645c);
   color: #ffffff;
-  border-color: var(--teal-deep);
-  box-shadow: 0 2px 6px rgba(22, 44, 43, 0.16);
+  font-weight: 700;
+  border-color: var(--accent-primary, #17645c);
+  box-shadow: 0 2px 6px rgba(22, 44, 43, 0.18);
 }
