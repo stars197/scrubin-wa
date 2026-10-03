@@ -3990,8 +3990,33 @@ Warm regards,
           message: document.getElementById('feedback-message-input').value.trim(),
           email: document.getElementById('feedback-email-input').value.trim(),
           status: 'Open',
-          createdAt: new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC'
+          createdAt: new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC',
+          clientForwarded: false
         };
+
+        try {
+          const fsRes = await fetch('https://formspree.io/f/xdekvqnr', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+              id: reportPayload.id,
+              category: reportPayload.category,
+              context: reportPayload.context || 'General / Not specified',
+              message: reportPayload.message,
+              email: reportPayload.email || 'anonymous@scrubinhealth.com',
+              createdAt: reportPayload.createdAt,
+              _subject: `[ScrubIn Health] ${reportPayload.category}: ${reportPayload.context || 'New Report'}`
+            })
+          });
+          if (fsRes.ok) {
+            reportPayload.clientForwarded = true;
+          }
+        } catch (_fsErr) {
+          // Backend will forward to Formspree if browser request was blocked
+        }
 
         try {
           await fetch('/api/feedback', {

@@ -659,16 +659,32 @@ def insert_feedback_report(payload):
 
   _append_feedback_to_files(report)
 
-  webhook_url = os.environ.get("FEEDBACK_WEBHOOK_URL", "").strip()
-  if webhook_url.startswith("http"):
+  webhook_url = os.environ.get(
+      "FEEDBACK_WEBHOOK_URL", "https://formspree.io/f/xdekvqnr"
+  ).strip()
+  if webhook_url.startswith("http") and not payload.get("clientForwarded"):
     try:
+      formspree_payload = {
+          "id": report["id"],
+          "category": report["category"],
+          "context": report["context"] or "General / Not specified",
+          "message": report["message"],
+          "email": report["email"] or "anonymous@scrubinhealth.com",
+          "createdAt": report["createdAt"],
+          "_subject": f"[ScrubIn Health] {report['category']}: {report['context'] or 'New Report'}",
+      }
       req = urllib.request.Request(
           webhook_url,
-          data=json.dumps(report).encode("utf-8"),
-          headers={"Content-Type": "application/json"},
+          data=json.dumps(formspree_payload).encode("utf-8"),
+          headers={
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+              "Referer": "https://scrubinhealth.com/",
+              "User-Agent": "Mozilla/5.0 (compatible; ScrubInHealth/1.0; +https://scrubinhealth.com)",
+          },
           method="POST",
       )
-      urllib.request.urlopen(req, timeout=4)
+      urllib.request.urlopen(req, timeout=6)
     except Exception:  # pylint: disable=broad-except
       pass
 
