@@ -2342,15 +2342,20 @@ Warm regards,
   // 7. Initialization, Cloud Auth Session & 24-Hour Live Sync API Load
   // --------------------------------------------------------------------------
   async function initApp() {
-    await loadOpportunities();
-    await restoreCloudSession();
+    const localCustom = JSON.parse(localStorage.getItem('medpath_wa_custom_opps') || '[]');
+    state.opportunities = [...DEFAULT_OPPORTUNITIES, ...localCustom];
     bindNavigation();
     bindSearchAndFilters();
     bindStarterToolkit();
     bindTrackerAndHours();
     bindModals();
-    bindLiveSyncEngine();
     renderAll();
+
+    // Hydrate live NIH studies and cloud session non-blockingly in parallel
+    Promise.all([loadOpportunities(), restoreCloudSession()]).then(() => {
+      renderAll();
+    });
+    bindLiveSyncEngine();
   }
 
   async function restoreCloudSession() {

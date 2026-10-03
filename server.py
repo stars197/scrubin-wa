@@ -946,10 +946,26 @@ class ScrubInHandler(BaseHTTPRequestHandler):
     with open(file_path, "rb") as f:
       content = f.read()
 
+    accept_enc = self.headers.get("Accept-Encoding", "")
+    use_gzip = "gzip" in accept_enc and any(
+        t in mime_type for t in ("text/", "javascript", "json", "svg")
+    )
+    if use_gzip:
+      import gzip
+      content = gzip.compress(content, compresslevel=6)
+
     self.send_response(200)
     self.send_header("Content-Type", mime_type)
+    if use_gzip:
+      self.send_header("Content-Encoding", "gzip")
+      self.send_header("Vary", "Accept-Encoding")
     self.send_header("Content-Length", str(len(content)))
-    self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+    if file_path.endswith((".js", ".css", ".jpg", ".png", ".svg", ".ico")):
+      self.send_header(
+          "Cache-Control", "public, max-age=86400, stale-while-revalidate=604800"
+      )
+    else:
+      self.send_header("Cache-Control", "public, max-age=60, must-revalidate")
     self.end_headers()
     self.wfile.write(content)
 
