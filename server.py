@@ -416,45 +416,105 @@ def _merge_hours_logs(cloud_list, local_list):
   return merged
 
 
-def get_student_account(email):
+AUTH_SECRET = os.environ.get("SCRUBIN_AUTH_SECRET", "scrubin-health-account-hmac-secret-2026")
+
+
+def _hash_pin(email, raw_pin):
+  """Returns a SHA-256 salted hash of the user's PIN."""
+  import hashlib
+  clean_email = (email or "").strip().lower()
+  clean_pin = (raw_pin or "").strip()
+  if not clean_pin:
+    return ""
+  return "sha256$" + hashlib.sha256(f"{clean_email}:{clean_pin}:{AUTH_SECRET}".encode("utf-8")).hexdigest()
+
+
+def _issue_auth_token(email, stored_pin_hash):
+  """Issues a deterministic HMAC session token bound to the verified account."""
+  import hashlib
+  import hmac
+  clean_email = (email or "").strip().lower()
+  msg = f"{clean_email}:{stored_pin_hash or 'nopin'}".encode("utf-8")
+  return hmac.new(AUTH_SECRET.encode("utf-8"), msg, hashlib.sha256).hexdigest()
+
+
+def check_student_account_exists(email):
+  """Lightweight lookup to check if an email/Gmail account is already registered."""
+  clean_email = (email or "").strip().lower()
+  if not clean_email or "@" not in clean_email:
+    return {"exists": False, "email": clean_email}
+  conn = sqlite3.connect(DB_PATH)
+  cur = conn.cursor()
+  cur.execute(
+      "SELECT email, name, provider, track, grad_year, pin_hash FROM student_accounts WHERE email = ?",
+      (clean_email,),
+  )
+  row = cur.fetchone()
+  conn.close()
+  if not row:
+    return {"exists": False, "email": clean_email}
+  return {
+      "exists": True,
+      "email": row[0],
+      "name": row[1],
+      "provider": row[2] or "edu",
+      "track": row[3] or "Pre-Med (MD / DO)",
+      "gradYear": row[4] or "2028",
+      "hasPin": bool(row[5]),
+  }
+
+
+def get_student_account(email, auth_token=""):
   clean_email = (email or "").strip().lower()
   if not clean_email:
     return None
   conn = sqlite3.connect(DB_PATH)
   cur = conn.cursor()
   cur.execute(
-      "SELECT email, name, provider, track, grad_year, saved_ids, pipeline_status, checklist_done, hours_log, updated_at FROM student_accounts WHERE email = ?",
+      "SELECT email, name, provider, track, grad_year, pin_hash, saved_ids, pipeline_status, checklist_done, hours_log, updated_at FROM student_accounts WHERE email = ?",
       (clean_email,),
   )
   row = cur.fetchone()
   conn.close()
   if not row:
     return None
+  stored_pin = row[5] or ""
+  expected_token = _issue_auth_token(clean_email, stored_pin)
+  if stored_pin and auth_token != expected_token:
+    return {"unauthorized": True, "email": clean_email}
   return {
       "email": row[0],
       "name": row[1],
       "provider": row[2],
       "track": row[3],
       "gradYear": row[4],
-      "savedIds": json.loads(row[5] or "[]"),
-      "pipelineStatus": json.loads(row[6] or "{}"),
-      "checklistDone": json.loads(row[7] or "[]"),
-      "hoursLog": json.loads(row[8] or "[]"),
-      "updatedAt": row[9],
+      "savedIds": json.loads(row[6] or "[]"),
+      "pipelineStatus": json.loads(row[7] or "{}"),
+      "checklistDone": json.loads(row[8] or "[]"),
+      "hoursLog": json.loads(row[9] or "[]"),
+      "updatedAt": row[10],
+      "authToken": expected_token,
+      "verified": True,
   }
 
 
 def signin_or_merge_student_account(payload):
-  """Signs in or creates a student account and merges local guest hours/bookmarks into cloud storage."""
+  """Verifies an existing student account via PIN or creates a new PIN-protected account."""
+  import hmac
   clean_email = (payload.get("email") or "").strip().lower()
   if not clean_email or "@" not in clean_email:
-    raise ValueError("Please enter a valid student or personal email address.")
+    raise ValueError("Please enter a valid Google, Apple, or .edu email address.")
 
   name = (payload.get("name") or clean_email.split("@")[0].replace(".", " ").title()).strip()
   provider = (payload.get("provider") or "edu").strip()
   track = (payload.get("track") or "Pre-Med (MD / DO)").strip()
   grad_year = str(payload.get("gradYear") or "2028").strip()
   pin = (payload.get("pin") or "").strip()
+
+  if len(pin) < 4:
+    raise ValueError("Please enter a 4-digit security PIN to verify your identity and protect your hours.")
+
+  hashed_input_pin = _hash_pin(clean_email, pin)
 
   local_state = payload.get("localState") or {}
   local_saved = local_state.get("savedIds") or []
@@ -474,14 +534,21 @@ def signin_or_merge_student_account(payload):
 
   if existing:
     stored_pin = existing[5] or ""
-    if stored_pin and pin and stored_pin != pin:
-      conn.close()
-      raise ValueError("Incorrect PIN/password for this email account.")
+    if stored_pin:
+      if stored_pin.startswith("sha256$"):
+        pin_matches = hmac.compare_digest(stored_pin, hashed_input_pin)
+      else:
+        pin_matches = hmac.compare_digest(stored_pin, pin)
+      if not pin_matches:
+        conn.close()
+        raise ValueError(
+            f"Incorrect 4-digit verification PIN for {clean_email}. Please enter the PIN you created for this account."
+        )
     final_name = payload.get("name") or existing[1] or name
     final_provider = existing[2] or provider
     final_track = payload.get("track") or existing[3] or track
     final_grad = payload.get("gradYear") or existing[4] or grad_year
-    final_pin = pin or stored_pin
+    final_pin = hashed_input_pin
 
     cloud_saved = json.loads(existing[6] or "[]")
     cloud_pipeline = json.loads(existing[7] or "{}")
@@ -497,7 +564,7 @@ def signin_or_merge_student_account(payload):
     final_provider = provider
     final_track = track
     final_grad = grad_year
-    final_pin = pin
+    final_pin = hashed_input_pin
     merged_saved = list(dict.fromkeys(local_saved))
     merged_pipeline = dict(local_pipeline)
     merged_checklist = list(dict.fromkeys(local_checklist))
@@ -537,34 +604,39 @@ def signin_or_merge_student_account(payload):
       "checklistDone": merged_checklist,
       "hoursLog": merged_hours,
       "updatedAt": now_iso,
+      "authToken": _issue_auth_token(clean_email, final_pin),
+      "verified": True,
+      "isExistingAccount": bool(existing),
   }
 
 
 def sync_student_account(payload):
-  """Updates the cloud-synced hours, bookmarks, and pipeline for a signed-in student."""
+  """Updates the cloud-synced hours, bookmarks, and pipeline for a verified signed-in student."""
   clean_email = (payload.get("email") or "").strip().lower()
   if not clean_email:
-    raise ValueError("Missing email for cloud sync")
+    raise ValueError("Account sign-in required to log or sync hours.")
+
+  provided_token = (payload.get("authToken") or "").strip()
 
   now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
   conn = sqlite3.connect(DB_PATH)
   cur = conn.cursor()
-  cur.execute("SELECT email FROM student_accounts WHERE email = ?", (clean_email,))
-  if not cur.fetchone():
+  cur.execute("SELECT email, pin_hash FROM student_accounts WHERE email = ?", (clean_email,))
+  row = cur.fetchone()
+  if not row:
     conn.close()
-    return signin_or_merge_student_account({
-        "email": clean_email,
-        "name": payload.get("name"),
-        "provider": payload.get("provider", "edu"),
-        "track": payload.get("track", "Pre-Med (MD / DO)"),
-        "gradYear": payload.get("gradYear", "2028"),
-        "localState": payload,
-    })
+    raise ValueError("Account not found. Please sign in and verify your account first.")
+
+  stored_pin = row[1] or ""
+  expected_token = _issue_auth_token(clean_email, stored_pin)
+  if stored_pin and provided_token != expected_token:
+    conn.close()
+    raise ValueError("Session verification failed. Please sign in again with your 4-digit PIN.")
 
   saved_ids = payload.get("savedIds", [])
   pipeline_status = payload.get("pipelineStatus", {})
   checklist_done = payload.get("checklistDone", [])
-  hours_log = payload.get("hoursLog", [])
+  hours_log = _merge_hours_logs([], payload.get("hoursLog", []))
 
   cur.execute(
       """
@@ -583,7 +655,7 @@ def sync_student_account(payload):
   )
   conn.commit()
   conn.close()
-  return {"status": "synced", "email": clean_email, "updatedAt": now_iso}
+  return {"status": "synced", "email": clean_email, "updatedAt": now_iso, "verified": True}
 
 
 FEEDBACK_JSONL_PATH = os.path.join(BASE_DIR, "feedback_submissions.jsonl")
@@ -825,12 +897,21 @@ class ScrubInHandler(BaseHTTPRequestHandler):
       )
       return
 
+    if route == "/api/auth/check-email":
+      qs = urllib.parse.parse_qs(parsed.query)
+      email = (qs.get("email") or [""])[0]
+      self._send_json(200, check_student_account_exists(email))
+      return
+
     if route == "/api/user/profile":
       qs = urllib.parse.parse_qs(parsed.query)
       email = (qs.get("email") or [""])[0]
-      acct = get_student_account(email)
+      token = (qs.get("token") or [self.headers.get("X-Auth-Token", "")])[0]
+      acct = get_student_account(email, token)
       if not acct:
         self._send_json(404, {"error": "Account not found"})
+      elif acct.get("unauthorized"):
+        self._send_json(401, {"error": "Verification required. Please sign in with your 4-digit PIN."})
       else:
         self._send_json(200, acct)
       return

@@ -2557,9 +2557,27 @@ Warm regards,
   // --------------------------------------------------------------------------
   // 6. Application State
   // --------------------------------------------------------------------------
-  // Strip out legacy hardcoded demo shifts if they were ever cached in localStorage
+  // Strip out legacy hardcoded demo shifts and require a verified account for hours/bookmarks
   const LEGACY_DEMO_LOG_IDS = new Set(['log-wa-1', 'log-wa-2']);
+  const initialUserProfile = (function () {
+    try {
+      const parsed = JSON.parse(localStorage.getItem('scrubin_user_profile') || 'null');
+      if (parsed && parsed.email && parsed.authToken) {
+        return parsed;
+      }
+      // Clear any unverified or guest localStorage state so guest hours never appear
+      localStorage.removeItem('scrubin_user_profile');
+      localStorage.removeItem('medpath_wa_hours_log');
+      localStorage.removeItem('medpath_wa_saved_ids');
+      localStorage.removeItem('medpath_wa_pipeline_status');
+      return null;
+    } catch (_e) {
+      return null;
+    }
+  })();
+
   function loadInitialHoursLog() {
+    if (!initialUserProfile) return [];
     try {
       const raw = JSON.parse(localStorage.getItem('medpath_wa_hours_log') || '[]');
       if (!Array.isArray(raw)) return [];
@@ -2597,10 +2615,14 @@ Warm regards,
     activePreset: null,
     activeDiscoveryCat: 'all',
     activeTemplate: 'research',
-    user: JSON.parse(localStorage.getItem('scrubin_user_profile') || 'null'),
-    cloudSyncState: 'idle',
-    savedIds: new Set(JSON.parse(localStorage.getItem('medpath_wa_saved_ids') || '[]')),
-    pipelineStatus: JSON.parse(localStorage.getItem('medpath_wa_pipeline_status') || '{}'),
+    user: initialUserProfile,
+    cloudSyncState: initialUserProfile ? 'synced' : 'idle',
+    savedIds: new Set(
+      initialUserProfile ? JSON.parse(localStorage.getItem('medpath_wa_saved_ids') || '[]') : []
+    ),
+    pipelineStatus: initialUserProfile
+      ? JSON.parse(localStorage.getItem('medpath_wa_pipeline_status') || '{}')
+      : {},
     checklistDone: new Set(JSON.parse(localStorage.getItem('medpath_wa_checklist') || '[]')),
     hoursLog: loadInitialHoursLog()
   };
@@ -2651,16 +2673,38 @@ Warm regards,
     bindLiveSyncEngine();
   }
 
+  function clearAccountSession() {
+    state.user = null;
+    state.cloudSyncState = 'idle';
+    state.hoursLog = [];
+    state.savedIds.clear();
+    state.pipelineStatus = {};
+    localStorage.removeItem('scrubin_user_profile');
+    localStorage.removeItem('medpath_wa_hours_log');
+    localStorage.removeItem('medpath_wa_saved_ids');
+    localStorage.removeItem('medpath_wa_pipeline_status');
+  }
+
   async function restoreCloudSession() {
-    if (!state.user || !state.user.email) return;
+    if (!state.user || !state.user.email || !state.user.authToken) {
+      clearAccountSession();
+      return;
+    }
     try {
-      const res = await fetch('/api/user/profile?email=' + encodeURIComponent(state.user.email));
+      const res = await fetch(
+        '/api/user/profile?email=' +
+          encodeURIComponent(state.user.email) +
+          '&token=' +
+          encodeURIComponent(state.user.authToken)
+      );
       if (res.ok) {
         const acct = await res.json();
         applyCloudAccountData(acct, false);
+      } else if (res.status === 401 || res.status === 404) {
+        clearAccountSession();
       }
     } catch (_err) {
-      // Offline fallback keeps localStorage state
+      // Offline fallback keeps verified session state
     }
   }
 
@@ -2672,7 +2716,9 @@ Warm regards,
       provider: acct.provider || 'edu',
       track: acct.track || 'Pre-Med (MD / DO)',
       gradYear: acct.gradYear || '2028',
-      updatedAt: acct.updatedAt || 'Just now'
+      updatedAt: acct.updatedAt || 'Just now',
+      authToken: acct.authToken || (state.user && state.user.authToken) || '',
+      verified: true
     };
     localStorage.setItem('scrubin_user_profile', JSON.stringify(state.user));
 
@@ -2694,20 +2740,24 @@ Warm regards,
     }
     state.cloudSyncState = 'synced';
     if (showNotification) {
-      showToast(`Signed in as ${state.user.name} — Hours & bookmarks synced to cloud!`);
+      showToast(`Verified & signed in as ${state.user.name} (${state.user.email})!`);
     }
   }
 
   async function syncUserToCloud() {
-    if (!state.user || !state.user.email) return;
+    if (!state.user || !state.user.email || !state.user.authToken) return;
     state.cloudSyncState = 'syncing';
     renderCloudAccountBanner();
     try {
       const res = await fetch('/api/user/sync', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Auth-Token': state.user.authToken
+        },
         body: JSON.stringify({
           email: state.user.email,
+          authToken: state.user.authToken,
           name: state.user.name,
           provider: state.user.provider,
           track: state.user.track,
@@ -2723,6 +2773,9 @@ Warm regards,
         state.user.updatedAt = data.updatedAt || 'Just now';
         localStorage.setItem('scrubin_user_profile', JSON.stringify(state.user));
         state.cloudSyncState = 'synced';
+      } else if (res.status === 401) {
+        clearAccountSession();
+        renderAll();
       } else {
         state.cloudSyncState = 'offline';
       }
@@ -3428,8 +3481,10 @@ Warm regards,
     const headerBtn = document.getElementById('open-auth-modal-btn');
     const headerLabel = document.getElementById('auth-header-btn-label');
     const formPill = document.getElementById('shift-form-sync-pill');
+    const gateCard = document.getElementById('tracker-auth-gate-card');
+    const logForm = document.getElementById('log-hours-form');
 
-    if (state.user && state.user.email) {
+    if (state.user && state.user.email && state.user.authToken) {
       const firstName = (state.user.name || state.user.email).split(' ')[0];
       const initials = (state.user.name || state.user.email)
         .split(' ')
@@ -3439,19 +3494,21 @@ Warm regards,
         .toUpperCase();
 
       if (headerBtn) headerBtn.classList.add('signed-in');
-      if (headerLabel) headerLabel.textContent = `✓ ${firstName} (Synced)`;
+      if (headerLabel) headerLabel.textContent = `✓ ${firstName} (Verified)`;
       if (formPill) {
         formPill.classList.add('synced');
         formPill.textContent =
-          state.cloudSyncState === 'syncing' ? '☁️ Syncing...' : '☁️ Cloud Synced ✓';
+          state.cloudSyncState === 'syncing' ? '☁️ Syncing...' : '🔒 Verified Account ✓';
       }
+      if (gateCard) gateCard.style.display = 'none';
+      if (logForm) logForm.style.display = 'grid';
 
       if (bannerEl) {
         bannerEl.classList.add('signed-in');
         const syncText =
           state.cloudSyncState === 'syncing'
             ? 'Syncing to cloud...'
-            : 'Cloud Synced ✓ (Phone & Laptop)';
+            : '🔒 Verified Account • Cloud Synced ✓';
         bannerEl.innerHTML = `
           <div class="cloud-banner-left">
             <div class="cloud-avatar-badge" aria-hidden="true">${escapeHtml(initials)}</div>
@@ -3462,7 +3519,7 @@ Warm regards,
                 <span class="cloud-synced-pill">${escapeHtml(syncText)}</span>
               </div>
               <div class="cloud-banner-sub">
-                Signed in as <strong>${escapeHtml(state.user.email)}</strong> • Log in with this email on any phone or laptop to access your hours.
+                Verified account: <strong>${escapeHtml(state.user.email)}</strong> • All logged hours &amp; saved programs are strictly bound to your account.
               </div>
             </div>
           </div>
@@ -3481,40 +3538,39 @@ Warm regards,
         const signOutBtn = document.getElementById('banner-signout-btn');
         if (signOutBtn) {
           signOutBtn.addEventListener('click', () => {
-            state.user = null;
-            state.cloudSyncState = 'idle';
-            localStorage.removeItem('scrubin_user_profile');
+            clearAccountSession();
             renderAll();
-            showToast('Signed out (your hours remain safely backed up in the cloud)');
+            showToast('Signed out — your hours remain safely stored in your cloud account.');
           });
         }
       }
     } else {
       if (headerBtn) headerBtn.classList.remove('signed-in');
-      if (headerLabel) headerLabel.textContent = 'Sign In / Sync';
+      if (headerLabel) headerLabel.textContent = 'Sign In / Verify';
       if (formPill) {
         formPill.classList.remove('synced');
-        formPill.textContent = 'Guest Mode (Local Browser)';
+        formPill.textContent = '🔒 Account Required';
       }
+      if (gateCard) gateCard.style.display = 'block';
+      if (logForm) logForm.style.display = 'none';
 
       if (bannerEl) {
         bannerEl.classList.remove('signed-in');
-        const totalGuestHrs = state.hoursLog.reduce((acc, r) => acc + (parseFloat(r.hours) || 0), 0);
         bannerEl.innerHTML = `
           <div class="cloud-banner-left">
-            <div class="cloud-avatar-badge guest" aria-hidden="true">☁️</div>
+            <div class="cloud-avatar-badge guest" aria-hidden="true">🔒</div>
             <div>
               <div class="cloud-banner-title">
-                <span>Back up your ${totalGuestHrs.toFixed(1)} logged hours &amp; ${state.savedIds.size} saved programs</span>
+                <span>Sign in &amp; verify your account to log hours and save programs</span>
               </div>
               <div class="cloud-banner-sub">
-                You are currently in <strong>Guest Mode</strong> (saved on this device only). Sign in with Google, Apple, or your <code>.edu</code> email to sync across your phone and laptop.
+                Hours are strictly tracked against your verified Google, Apple, or <code>.edu</code> account (no guest logging). Returning users verify with their 4-digit PIN.
               </div>
             </div>
           </div>
           <div>
             <button type="button" class="btn btn-primary btn-sm" id="banner-open-signin-btn">
-              Sign In to Sync Hours
+              Sign In / Verify Account
             </button>
           </div>
         `;
@@ -3524,6 +3580,12 @@ Warm regards,
             document.getElementById('auth-modal-backdrop').classList.add('open');
           });
         }
+      }
+      const gateBtn = document.getElementById('gate-open-signin-btn');
+      if (gateBtn) {
+        gateBtn.onclick = () => {
+          document.getElementById('auth-modal-backdrop').classList.add('open');
+        };
       }
     }
   }
@@ -3944,6 +4006,12 @@ Warm regards,
   }
 
   function toggleSaveOpportunity(oppId) {
+    if (!state.user || !state.user.email || !state.user.authToken) {
+      const authBackdrop = document.getElementById('auth-modal-backdrop');
+      if (authBackdrop) authBackdrop.classList.add('open');
+      showToast('Sign in & verify your account to bookmark programs and log hours.');
+      return;
+    }
     if (state.savedIds.has(oppId)) {
       state.savedIds.delete(oppId);
       showToast('Removed from My Tracker');
@@ -3952,7 +4020,7 @@ Warm regards,
       if (!state.pipelineStatus[oppId]) {
         state.pipelineStatus[oppId] = 'Saved';
       }
-      showToast(state.user ? 'Saved & synced to your Cloud Tracker' : 'Saved to My Tracker');
+      showToast('Saved & synced to your verified account');
     }
     localStorage.setItem('medpath_wa_saved_ids', JSON.stringify([...state.savedIds]));
     localStorage.setItem('medpath_wa_pipeline_status', JSON.stringify(state.pipelineStatus));
@@ -3995,6 +4063,12 @@ Warm regards,
 
     document.getElementById('log-hours-form').addEventListener('submit', (e) => {
       e.preventDefault();
+      if (!state.user || !state.user.email || !state.user.authToken) {
+        document.getElementById('auth-modal-backdrop').classList.add('open');
+        showToast('Please sign in & verify your account to log hours.');
+        return;
+      }
+
       const org = document.getElementById('log-org-input').value.trim();
       const category = document.getElementById('log-category-select').value;
       const hours = parseFloat(document.getElementById('log-hours-input').value);
@@ -4024,17 +4098,16 @@ Warm regards,
       renderTrackerAndHours();
       renderCloudAccountBanner();
       syncUserToCloud();
-      showToast(
-        state.user
-          ? `Logged ${hours} hrs at ${org} (Cloud Synced ✓)`
-          : `Logged ${hours} hrs at ${org}`
-      );
+      showToast(`Logged ${hours} hrs at ${org} (Synced to ${state.user.email} ✓)`);
     });
 
     document.getElementById('export-hours-csv-btn').addEventListener('click', () => {
-      const studentHeader = state.user
-        ? `${state.user.name} (${state.user.email}) — ${state.user.track || 'Pre-Med'}`
-        : 'Guest Pre-Health Student';
+      if (!state.user || !state.user.email || !state.user.authToken) {
+        document.getElementById('auth-modal-backdrop').classList.add('open');
+        showToast('Sign in to your verified account to export your hours CSV.');
+        return;
+      }
+      const studentHeader = `${state.user.name} (${state.user.email}) — ${state.user.track || 'Pre-Med'}`;
       const rows = [
         ['Student', 'Date', 'Facility / Lab', 'AMCAS / CASPA Category', 'Hours', 'Supervisor / Contact', 'Patient Impact & Reflection'],
         ...state.hoursLog.map((r) => [
@@ -4066,9 +4139,14 @@ Warm regards,
   // --------------------------------------------------------------------------
   async function performStudentSignIn(payload) {
     const submitBtn = document.getElementById('submit-auth-btn');
+    const errBanner = document.getElementById('auth-error-banner');
+    if (errBanner) {
+      errBanner.style.display = 'none';
+      errBanner.textContent = '';
+    }
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Syncing to Cloud...';
+      submitBtn.textContent = 'Verifying Account...';
     }
     try {
       const reqBody = {
@@ -4087,35 +4165,29 @@ Warm regards,
       });
       const data = await res.json();
       if (!res.ok) {
-        showToast(data.error || 'Could not sign in. Please check your email and PIN.');
+        const errMsg = data.error || 'Could not verify account. Please check your email and 4-digit PIN.';
+        if (errBanner) {
+          errBanner.textContent = '⚠️ ' + errMsg;
+          errBanner.style.display = 'block';
+        }
+        showToast(errMsg);
         return false;
       }
       applyCloudAccountData(data, true);
       renderAll();
       return true;
     } catch (_err) {
-      // Offline / static fallback still creates a local profile
-      applyCloudAccountData(
-        {
-          email: payload.email,
-          name: payload.name || payload.email.split('@')[0],
-          provider: payload.provider || 'edu',
-          track: payload.track || 'Pre-Med (MD / DO)',
-          gradYear: payload.gradYear || '2028',
-          savedIds: [...state.savedIds],
-          pipelineStatus: state.pipelineStatus,
-          checklistDone: [...state.checklistDone],
-          hoursLog: state.hoursLog,
-          updatedAt: 'Local Session'
-        },
-        true
-      );
-      renderAll();
-      return true;
+      const errMsg = 'Could not reach verification server. Please try again.';
+      if (errBanner) {
+        errBanner.textContent = '⚠️ ' + errMsg;
+        errBanner.style.display = 'block';
+      }
+      showToast(errMsg);
+      return false;
     } finally {
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Sign In & Sync Hours';
+        submitBtn.textContent = 'Verify & Sign In';
       }
     }
   }
@@ -4388,27 +4460,104 @@ Warm regards,
       });
     }
 
-    // Student Sign-In & Cloud Hours Sync Modal (Idea A)
+    // Student Sign-In & Verified Account Modal
     const openAuthBtn = document.getElementById('open-auth-modal-btn');
     const closeAuthBtn = document.getElementById('close-auth-modal-btn');
     const cancelAuthBtn = document.getElementById('cancel-auth-modal-btn');
     const googleBtn = document.getElementById('oauth-google-btn');
     const appleBtn = document.getElementById('oauth-apple-btn');
     const authForm = document.getElementById('student-auth-form');
+    const authEmailInput = document.getElementById('auth-email-input');
+    const authNameInput = document.getElementById('auth-name-input');
+    const authPinInput = document.getElementById('auth-pin-input');
+    const authPinLabel = document.getElementById('auth-pin-label');
+    const authProviderInput = document.getElementById('auth-provider-input');
+    const authStatusBanner = document.getElementById('auth-account-status-banner');
+    const authErrorBanner = document.getElementById('auth-error-banner');
+    const submitAuthBtn = document.getElementById('submit-auth-btn');
+
+    let emailCheckTimer = null;
+    async function checkExistingEmailStatus(rawEmail) {
+      const email = (rawEmail || '').trim().toLowerCase();
+      if (!email || !email.includes('@') || !email.includes('.')) {
+        if (authStatusBanner) authStatusBanner.style.display = 'none';
+        return;
+      }
+      try {
+        const res = await fetch('/api/auth/check-email?email=' + encodeURIComponent(email));
+        if (!res.ok) return;
+        const info = await res.json();
+        if (authStatusBanner) {
+          authStatusBanner.style.display = 'flex';
+          if (info.exists) {
+            const provName =
+              info.provider === 'google'
+                ? 'Google / Gmail'
+                : info.provider === 'apple'
+                ? 'Apple'
+                : '.edu / Email';
+            authStatusBanner.innerHTML = `
+              <span>✓ <strong>Welcome back, ${escapeHtml(info.name || email)}!</strong> Your ${escapeHtml(provName)} account is already registered. Enter your <strong>4-digit PIN</strong> below to verify it's you and unlock your hours.</span>
+            `;
+            if (authNameInput && !authNameInput.value.trim() && info.name) {
+              authNameInput.value = info.name;
+            }
+            if (info.track) {
+              document.getElementById('auth-track-select').value = info.track;
+            }
+            if (info.gradYear) {
+              document.getElementById('auth-grad-select').value = info.gradYear;
+            }
+            if (authPinLabel) authPinLabel.textContent = 'Verify Your 4-Digit PIN *';
+            if (submitAuthBtn) submitAuthBtn.textContent = 'Verify PIN & Unlock Hours';
+          } else {
+            authStatusBanner.innerHTML = `
+              <span>✨ <strong>New Account (${escapeHtml(email)})</strong> — Create a <strong>4-digit security PIN</strong> below so only you can access or log your hours.</span>
+            `;
+            if (authNameInput && !authNameInput.value.trim()) {
+              authNameInput.value = email
+                .split('@')[0]
+                .replace(/[._-]/g, ' ')
+                .replace(/\b\w/g, (c) => c.toUpperCase());
+            }
+            if (authPinLabel) authPinLabel.textContent = 'Create 4-Digit Security PIN *';
+            if (submitAuthBtn) submitAuthBtn.textContent = 'Create Account & Save PIN';
+          }
+        }
+      } catch (_err) {
+        // Ignore network errors during live typing check
+      }
+    }
+
+    if (authEmailInput) {
+      authEmailInput.addEventListener('input', () => {
+        if (authErrorBanner) authErrorBanner.style.display = 'none';
+        if (emailCheckTimer) clearTimeout(emailCheckTimer);
+        emailCheckTimer = setTimeout(() => {
+          checkExistingEmailStatus(authEmailInput.value);
+        }, 280);
+      });
+      authEmailInput.addEventListener('blur', () => {
+        checkExistingEmailStatus(authEmailInput.value);
+      });
+    }
 
     function populateAuthModalFields() {
+      if (authErrorBanner) authErrorBanner.style.display = 'none';
       if (state.user) {
         document.getElementById('auth-email-input').value = state.user.email || '';
         document.getElementById('auth-name-input').value = state.user.name || '';
         document.getElementById('auth-track-select').value = state.user.track || 'Pre-Med (MD / DO)';
         document.getElementById('auth-grad-select').value = state.user.gradYear || '2028';
+        checkExistingEmailStatus(state.user.email);
       }
     }
 
     if (openAuthBtn && authBackdrop) {
       openAuthBtn.addEventListener('click', () => {
-        if (state.user) {
+        if (state.user && state.user.authToken) {
           switchTab('tracker');
+          return;
         }
         populateAuthModalFields();
         authBackdrop.classList.add('open');
@@ -4426,67 +4575,67 @@ Warm regards,
       });
     }
 
-    async function handleOAuthClick(providerName) {
-      const emailEl = document.getElementById('auth-email-input');
-      const nameEl = document.getElementById('auth-name-input');
-      let email = emailEl.value.trim();
-      let name = nameEl.value.trim();
-
-      if (!email) {
-        const prompted = window.prompt(
-          `Continue with ${providerName === 'google' ? 'Google' : 'Apple'}:\nEnter your ${providerName === 'google' ? 'Google / .edu' : 'Apple ID'} email to sync your clinical hours across devices:`,
-          providerName === 'google' ? 'student@uw.edu' : 'student@icloud.com'
-        );
-        if (!prompted || !prompted.trim()) return;
-        email = prompted.trim().toLowerCase();
-        emailEl.value = email;
-      }
-      if (!name) {
-        name = email
-          .split('@')[0]
-          .replace(/[._-]/g, ' ')
-          .replace(/\b\w/g, (c) => c.toUpperCase());
-        nameEl.value = name;
-      }
-
-      const ok = await performStudentSignIn({
-        email,
-        name,
-        provider: providerName,
-        track: document.getElementById('auth-track-select').value,
-        gradYear: document.getElementById('auth-grad-select').value,
-        pin: document.getElementById('auth-pin-input').value.trim()
-      });
-      if (ok && authBackdrop) {
-        authBackdrop.classList.remove('open');
-        switchTab('tracker');
+    function selectOAuthProvider(providerName) {
+      if (authProviderInput) authProviderInput.value = providerName;
+      const dividerLabel = document.getElementById('auth-provider-divider-label');
+      if (providerName === 'google') {
+        if (dividerLabel) {
+          dividerLabel.textContent = 'Enter your Gmail / Google Workspace address & 4-digit PIN below';
+        }
+        if (authEmailInput) {
+          authEmailInput.placeholder = 'e.g. yourname@gmail.com or yourname@uw.edu';
+          authEmailInput.focus();
+          if (authEmailInput.value.trim()) {
+            checkExistingEmailStatus(authEmailInput.value);
+            if (authPinInput) authPinInput.focus();
+          }
+        }
+      } else if (providerName === 'apple') {
+        if (dividerLabel) {
+          dividerLabel.textContent = 'Enter your Apple ID / iCloud email & 4-digit PIN below';
+        }
+        if (authEmailInput) {
+          authEmailInput.placeholder = 'e.g. yourname@icloud.com';
+          authEmailInput.focus();
+          if (authEmailInput.value.trim()) {
+            checkExistingEmailStatus(authEmailInput.value);
+            if (authPinInput) authPinInput.focus();
+          }
+        }
       }
     }
 
     if (googleBtn) {
-      googleBtn.addEventListener('click', () => handleOAuthClick('google'));
+      googleBtn.addEventListener('click', () => selectOAuthProvider('google'));
     }
     if (appleBtn) {
-      appleBtn.addEventListener('click', () => handleOAuthClick('apple'));
+      appleBtn.addEventListener('click', () => selectOAuthProvider('apple'));
     }
     if (authForm) {
       authForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const email = document.getElementById('auth-email-input').value.trim();
+        const email = document.getElementById('auth-email-input').value.trim().toLowerCase();
         const name = document.getElementById('auth-name-input').value.trim();
         const track = document.getElementById('auth-track-select').value;
         const gradYear = document.getElementById('auth-grad-select').value;
         const pin = document.getElementById('auth-pin-input').value.trim();
+        let provider = authProviderInput ? authProviderInput.value : 'edu';
+        if (email.endsWith('@gmail.com') || email.endsWith('@googlemail.com')) {
+          provider = 'google';
+        } else if (email.endsWith('@icloud.com') || email.endsWith('@me.com')) {
+          provider = 'apple';
+        }
 
         const ok = await performStudentSignIn({
           email,
           name,
-          provider: 'edu',
+          provider,
           track,
           gradYear,
           pin
         });
         if (ok && authBackdrop) {
+          document.getElementById('auth-pin-input').value = '';
           authBackdrop.classList.remove('open');
           switchTab('tracker');
         }
