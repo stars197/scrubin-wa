@@ -406,9 +406,10 @@ def insert_custom_opportunity(opp_dict):
 
 def _merge_hours_logs(cloud_list, local_list):
   """Merges two lists of shift log entries without duplicating shift IDs."""
+  legacy_demo_ids = {"log-wa-1", "log-wa-2"}
   by_id = {}
   for item in (cloud_list or []) + (local_list or []):
-    if isinstance(item, dict) and item.get("id"):
+    if isinstance(item, dict) and item.get("id") and item.get("id") not in legacy_demo_ids:
       by_id[item["id"]] = item
   merged = list(by_id.values())
   merged.sort(key=lambda x: x.get("date", ""), reverse=True)

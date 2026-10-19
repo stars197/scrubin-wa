@@ -2557,6 +2557,22 @@ Warm regards,
   // --------------------------------------------------------------------------
   // 6. Application State
   // --------------------------------------------------------------------------
+  // Strip out legacy hardcoded demo shifts if they were ever cached in localStorage
+  const LEGACY_DEMO_LOG_IDS = new Set(['log-wa-1', 'log-wa-2']);
+  function loadInitialHoursLog() {
+    try {
+      const raw = JSON.parse(localStorage.getItem('medpath_wa_hours_log') || '[]');
+      if (!Array.isArray(raw)) return [];
+      const cleaned = raw.filter((item) => item && !LEGACY_DEMO_LOG_IDS.has(item.id));
+      if (cleaned.length !== raw.length) {
+        localStorage.setItem('medpath_wa_hours_log', JSON.stringify(cleaned));
+      }
+      return cleaned;
+    } catch (_e) {
+      return [];
+    }
+  }
+
   const state = {
     opportunities: [],
     activeTab: 'explore',
@@ -2583,29 +2599,10 @@ Warm regards,
     activeTemplate: 'research',
     user: JSON.parse(localStorage.getItem('scrubin_user_profile') || 'null'),
     cloudSyncState: 'idle',
-    savedIds: new Set(JSON.parse(localStorage.getItem('medpath_wa_saved_ids') || '["wa-001","us-001","us-002"]')),
-    pipelineStatus: JSON.parse(localStorage.getItem('medpath_wa_pipeline_status') || '{"wa-001":"Preparing Clearances","us-001":"Saved","us-002":"Saved"}'),
-    checklistDone: new Set(JSON.parse(localStorage.getItem('medpath_wa_checklist') || '["chk-immunizations","chk-watch"]')),
-    hoursLog: JSON.parse(localStorage.getItem('medpath_wa_hours_log') || JSON.stringify([
-      {
-        id: 'log-wa-1',
-        date: '2026-09-24',
-        org: 'Harborview Medical Center (UW Medicine)',
-        category: 'Clinical (Direct Patient)',
-        hours: 4.0,
-        supervisor: 'First Hill ED Volunteer Office (hmcvol@uw.edu)',
-        reflection: 'Assisted First Hill ED nurses with patient comfort rounds and wheelchair discharge escorts.'
-      },
-      {
-        id: 'log-wa-2',
-        date: '2026-09-27',
-        org: 'Sea Mar Community Health Center (Seattle)',
-        category: 'Community Health',
-        hours: 4.5,
-        supervisor: 'Volunteer Dept (volunteer@seamarchc.org)',
-        reflection: 'Helped Spanish-speaking families complete preventative clinic intake and Apple Health forms.'
-      }
-    ]))
+    savedIds: new Set(JSON.parse(localStorage.getItem('medpath_wa_saved_ids') || '[]')),
+    pipelineStatus: JSON.parse(localStorage.getItem('medpath_wa_pipeline_status') || '{}'),
+    checklistDone: new Set(JSON.parse(localStorage.getItem('medpath_wa_checklist') || '[]')),
+    hoursLog: loadInitialHoursLog()
   };
 
   function isNationalOrRemote(opp) {
@@ -2692,7 +2689,7 @@ Warm regards,
       localStorage.setItem('medpath_wa_checklist', JSON.stringify([...state.checklistDone]));
     }
     if (Array.isArray(acct.hoursLog)) {
-      state.hoursLog = acct.hoursLog;
+      state.hoursLog = acct.hoursLog.filter((item) => item && !LEGACY_DEMO_LOG_IDS.has(item.id));
       localStorage.setItem('medpath_wa_hours_log', JSON.stringify(state.hoursLog));
     }
     state.cloudSyncState = 'synced';
